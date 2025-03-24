@@ -5,9 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 const LoginScreen = () => {
   const navigation = useNavigation();
 
-  function alert(arg0: string): void {
-    throw new Error('Function not implemented.');
-  }
+  // function alert(arg0: string): void {
+  //   throw new Error('Function not implemented.');
+  // }
 
   return (
     <View style={styles.container}>
