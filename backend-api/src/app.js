@@ -1,12 +1,35 @@
 const express = require('express');
 const userRoutes = require('./routes/userRoutes');
 const pool = require('./db/db');
+const { authenticateAdmin } = require('./middleware/authMiddleware');
+const authRoutes = require('./routes/authRoutes');
+const facultyRoutes = require('./routes/facultyRoutes');
+const expertiseRoutes = require('./routes/expertiseRoutes');
+// const facultyExpertiseRoutes = require('./routes/facultyExpertiseRoutes');
+const studentRoutes = require('./routes/studentsRoutes');
+// const studentExpertiseRoutes = require('./routes/studentExpertiseRoutes');
+const fundingRoutes = require('./routes/fundingRoutes'); //funding details
+const projectRoutes = require('./routes/projectsRoutes'); //funding research_projects
+const notificationsRoutes = require('./routes/notificationsRoutes'); //notifications
+const { authenticateUser } = require('./middleware/authMiddleware');
+const cors = require('cors');
+
 
 const app = express();
 app.use(express.json());
 
 // Routes
-app.use('/users', userRoutes);
+app.use('/users', authenticateAdmin, userRoutes);
+app.use('/faculty', facultyRoutes);
+app.use('/expertise', expertiseRoutes);
+// app.use('/faculty/expertise', facultyExpertiseRoutes);
+app.use('/students', studentRoutes);
+// app.use('/students/expertise', studentExpertiseRoutes);
+app.use('/funding', fundingRoutes);  //funding details
+app.use('/projects', projectRoutes); //funding research_projects
+app.use('/notifications', notificationsRoutes); //notifications
+app.use(cors()); // Enable CORS for all routes
+app.use('/api/auth', authRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');
