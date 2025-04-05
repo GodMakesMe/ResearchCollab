@@ -45,7 +45,7 @@ const register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         await pool.query(
-            'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4)', 
+            'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5)', 
             [name, email, phone, role || 'user', hashedPassword]     // default role is 'user' if not defined
         );
 
