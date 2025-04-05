@@ -38,15 +38,15 @@ const login = async (req, res) => {
 
 // Register User
 const register = async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, phone, role, password } = req.body;
     try {
         // Salt here is for security in database.
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
         await pool.query(
-            'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)', 
-            [name, email, hashedPassword, role || 'user']
+            'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4)', 
+            [name, email, phone, role || 'user', hashedPassword]     // default role is 'user' if not defined
         );
 
         res.status(201).json({ message: 'User registered successfully' });
