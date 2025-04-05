@@ -22,7 +22,7 @@ const LoginScreen = () => {
         console.log('Token:', data.token);
         // Store the token in SecureStore or AsyncStorage if needed
         // Navigate to main app screen
-        
+        navigation.navigate('Main');
       } else {
         Alert.alert('Error', data.message || 'Login failed');
       }
