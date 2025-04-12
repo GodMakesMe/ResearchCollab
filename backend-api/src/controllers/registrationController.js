@@ -2,7 +2,7 @@ const pool = require('../db/db');
 
 const getPendingRequests = async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM registration_requests WHERE status = $1', ['pending']);
+    const result = await pool.query('SELECT * FROM registration_requests');
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching pending requests' });
