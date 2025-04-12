@@ -10,28 +10,54 @@ interface User {
 }
 
 const ViewUsers: React.FC = () => {
-    const [users, setUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
-	const pageNo = 1;
-	  
-    useEffect(() => {
-		const fetchUsers = async () => {
-		  try {
-			const token = localStorage.getItem('token'); // Retrieve the token from localStorage or wherever it's stored
-			const response = await axios.get('https://researchcollab-backend.up.railway.app/users', {
-			  headers: {
-				'Authorization': `${token}`,
-			  },
-			});
-			console.log('Users:', response.data);
-		  } catch (error) {
-			console.error('Error fetching users:', error);
-		  }
-		};
-	  
-		fetchUsers();
-	  }, []);
-	  
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState<string>(''); // For search input
+  const [page, setPage] = useState<number>(1); // For pagination
+  const [totalPages, setTotalPages] = useState<number>(1); // Total number of pages
+
+  const limit = 20; // Number of items per page
+
+  // Fetch users whenever the page or search query changes
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('https://researchcollab-backend.up.railway.app/users', {
+          headers: {
+            'Authorization': `${token}`,
+          },
+          params: {
+            search,
+            page,
+            limit,
+          },
+        });
+        console.log('✅ Users fetched:', response.data);
+        setUsers(response.data.users); // Assuming response.data.users holds the list of users
+        setTotalPages(response.data.pagination.totalPages); // Assuming pagination data is returned
+      } catch (error) {
+        console.error('❌ Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [search, page]); // Run again when search or page changes
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setPage(1); // Reset to the first page when a new search is entered
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages) setPage(page + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) setPage(page - 1);
+  };
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -43,6 +69,26 @@ const ViewUsers: React.FC = () => {
       }}>
         Registered Users
       </h3>
+
+      <div style={{
+        marginBottom: '1rem',
+      }}>
+        <input
+          type="text"
+          value={search}
+          onChange={handleSearchChange}
+          placeholder="Search by name or email"
+          style={{
+            padding: '0.8rem',
+            borderRadius: '8px',
+            border: '1px solid #ddd',
+            fontSize: '1rem',
+            width: '100%',
+            maxWidth: '400px',
+            marginBottom: '1rem',
+          }}
+        />
+      </div>
 
       <div style={{
         backgroundColor: '#ffffff',
@@ -88,6 +134,51 @@ const ViewUsers: React.FC = () => {
           </table>
         )}
       </div>
+
+      	{/* Pagination Controls */}
+		<div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+		<button
+			onClick={handlePrevPage}
+			disabled={page === 1}
+			style={buttonStyle}
+		>
+			Previous
+		</button>
+
+		<button
+			onClick={handleNextPage}
+			disabled={page === totalPages}
+			style={buttonStyle}
+		>
+			Next
+		</button>
+
+		{/* Manual Page Input */}
+		<div style={{ marginTop: '1rem' }}>
+			<input
+			type="number"
+			value={page}
+			min={1}
+			max={totalPages}
+			onChange={(e) => {
+				const inputPage = Number(e.target.value);
+				if (!isNaN(inputPage) && inputPage >= 1 && inputPage <= totalPages) {
+				setPage(inputPage);
+				}
+			}}
+			style={{
+				padding: '0.5rem',
+				fontSize: '1rem',
+				borderRadius: '6px',
+				border: '1px solid #ccc',
+				width: '80px',
+				marginRight: '0.5rem',
+			}}
+			/>
+			<span> / {totalPages}</span>
+		</div>
+		</div>
+
     </div>
   );
 };
@@ -104,4 +195,16 @@ const tdStyle: React.CSSProperties = {
   color: '#333'
 };
 
+const buttonStyle: React.CSSProperties = {
+  padding: '0.5rem 1.5rem',
+  backgroundColor: '#0f6f6f',
+  color: 'white',
+  border: 'none',
+  borderRadius: '8px',
+  cursor: 'pointer',
+  fontSize: '1rem',
+  margin: '0 0.5rem',
+};
+
 export default ViewUsers;
+
