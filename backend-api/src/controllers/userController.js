@@ -7,8 +7,7 @@ const getAllUsers = async (req, res) => {
   } catch (err) {
     res.status(500).send('Error fetching users');
   }
-};
-const getUsers = async (req, res) => {
+};const getUsers = async (req, res) => {
   const {
     category,
     sortBy = "id",
@@ -24,31 +23,36 @@ const getUsers = async (req, res) => {
 
   const allowedSortBy = ["id", "name", "email", "created_at", "category"];
   const sortColumn = allowedSortBy.includes(sortBy) ? sortBy : "id";
-  
 
   try {
-    let baseQuery = "SELECT * FROM users";
-    let countQuery = "SELECT COUNT(*) FROM users";
+    let values = [];
     let whereClause = "";
-    const values = [];
+    let paramIndex = 1;
 
-
-    // Only filter if category is a real value
+    // Handle optional category filter
     if (category && category !== "*" && category.toLowerCase() !== "all") {
-      whereClause = " WHERE category = $1";
+      whereClause = ` WHERE category = $${paramIndex++}`;
       values.push(category);
     }
 
-    baseQuery += whereClause;
-    countQuery += whereClause;
-
-    // Add sorting, limit, and offset
-    baseQuery += ` ORDER BY ${sortColumn} ${order} LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
+    // Add LIMIT and OFFSET placeholders
+    const limitPlaceholder = `$${paramIndex++}`;
+    const offsetPlaceholder = `$${paramIndex++}`;
     values.push(limitNum, offset);
 
-    // Run queries
-    const dataResult = await pool.query(baseQuery, values);
-    const countResult = await pool.query(countQuery, values.slice(0, whereClause ? 1 : 0));
+    // Construct final queries
+    const baseQuery = `SELECT * FROM users${whereClause} ORDER BY ${sortColumn} ${order} LIMIT ${limitPlaceholder} OFFSET ${offsetPlaceholder}`;
+    const countQuery = `SELECT COUNT(*) FROM users${whereClause}`;
+
+    // Log for debugging
+    console.log("📄 Final Base Query:", baseQuery);
+    console.log("📄 Final Count Query:", countQuery);
+    console.log("📦 Values:", values);
+
+    const [dataResult, countResult] = await Promise.all([
+      pool.query(baseQuery, values),
+      pool.query(countQuery, values.slice(0, whereClause ? 1 : 0)), // only send category to count query if applied
+    ]);
 
     const totalItems = parseInt(countResult.rows[0].count, 10);
     const totalPages = Math.ceil(totalItems / limitNum);
