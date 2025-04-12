@@ -16,10 +16,12 @@ import ViewProjects from '../adminOptions/ViewProjects';
 // import AnalyticsOverview from '../adminOptions/AnalyticsOverview';
 // import AnalyticsTrends from '../adminOptions/AnalyticsTrends';
 
-// import FundingGrants from '../adminOptions/FundingGrants';
+import FundingGrants from '../adminOptions/ViewFunding';
 // import FundingDonations from '../adminOptions/FundingDonations';
 
-// import PendingUserRequests from '../adminOptions/PendingUserRequests';
+import PendingUserRequests from '../adminOptions/PendingUserRequests';
+import FundingForm from '../adminOptions/ViewFunding';
+import FundingView from '../adminOptions/ViewFunding';
 // import PendingFacultyRequests from '../adminOptions/PendingFacultyRequests';
 
 // import Settings from '../adminOptions/Settings';
@@ -107,14 +109,14 @@ const AdminDashboard = () => {
       //   return <AnalyticsTrends />;
   
       // // Funding
-      // case 'Funding > Grants':
-      //   return <FundingGrants />;
+      case 'Funding > Grants':
+        return <FundingView />;
       // case 'Funding > Donations':
       //   return <FundingDonations />;
   
-      // // Pending Requests
-      // case 'Pending Requests > User Requests':
-      //   return <PendingUserRequests />;
+      // Pending Requests
+      case 'Pending Requests > User Requests':
+        return <PendingUserRequests />;
       // case 'Pending Requests > Faculty Requests':
       //   return <PendingFacultyRequests />;
   
@@ -257,8 +259,6 @@ const AdminDashboard = () => {
         </div>
 
         
-
-        {/* Dashboard Area */}
         {/* Dashboard Area */}
         <div style={{ flex: 1, padding: '2rem', overflowY: 'auto', borderTopLeftRadius: '60px', borderTopRightRadius: '20px', backgroundColor: '#f8f9fa' }}>
         <div style={{ padding: '1.5rem', border: '1px solid #ccc', borderRadius: '10px' }}>

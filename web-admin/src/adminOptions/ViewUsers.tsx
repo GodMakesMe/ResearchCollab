@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { backend_url } from '../utils/constants';
 
 interface User {
-  id: number;
+  user_id: number;
   name: string;
   email: string;
   role: string;
-  password: string;
+  phone: string;
 }
 
 const ViewUsers: React.FC = () => {
+	
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<string>(''); // e.g., 'name', 'email'
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [search, setSearch] = useState<string>(''); // For search input
   const [page, setPage] = useState<number>(1); // For pagination
   const [totalPages, setTotalPages] = useState<number>(1); // Total number of pages
@@ -20,32 +24,47 @@ const ViewUsers: React.FC = () => {
 
   // Fetch users whenever the page or search query changes
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('https://researchcollab-backend.up.railway.app/users', {
-          headers: {
-            'Authorization': `${token}`,
-          },
-          params: {
-            search,
-            page,
-            limit,
-          },
-        });
-        console.log('✅ Users fetched:', response.data);
-        setUsers(response.data.users); // Assuming response.data.users holds the list of users
-        setTotalPages(response.data.pagination.totalPages); // Assuming pagination data is returned
-      } catch (error) {
-        console.error('❌ Error fetching users:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+	const fetchUsers = async () => {
+	  setLoading(true);
+	  try {
+		const token = localStorage.getItem('token');
+		const response = await axios.get(backend_url +'/users', {
+		  headers: {
+			'Authorization': `${token}`,
+		  },
+		  params: {
+			search,
+			page,
+			limit,
+			sortBy,
+			sortOrder,
+		  },
+		});
+		setUsers(response.data.users);
+		setTotalPages(response.data.pagination.totalPages);
+	  } catch (error) {
+		console.error('❌ Error fetching users:', error);
+	  } finally {
+		setLoading(false);
+	  }
+	};
+  
+	fetchUsers();
+  }, [search, page, sortBy, sortOrder]);
+  
 
-    fetchUsers();
-  }, [search, page]); // Run again when search or page changes
+//     fetchUsers();
+//   }, [search, page]); // Run again when search or page changes
 
+  const handleSort = (field: string) => {
+	if (sortBy === field) {
+	  setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+	} else {
+	  setSortBy(field);
+	  setSortOrder('asc'); // Default order on first click
+	}
+  };
+  
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     setPage(1); // Reset to the first page when a new search is entered
@@ -106,28 +125,38 @@ const ViewUsers: React.FC = () => {
             fontSize: '0.95rem'
           }}>
             <thead>
-              <tr style={{ backgroundColor: '#f0f4f7', color: '#0f6f6f' }}>
-                <th style={thStyle}>#</th>
-                <th style={thStyle}>Name</th>
-                <th style={thStyle}>Email</th>
-                <th style={thStyle}>Role</th>
-                <th style={thStyle}>Password</th>
-              </tr>
+				<tr style={{ backgroundColor: '#f0f4f7', color: '#0f6f6f' }}>
+					<th style={thStyle}> # </th>
+					<th style={thStyle} onClick={() => handleSort('user_id')}> user id {sortBy === 'user_id' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+					<th style={thStyle} onClick={() => handleSort('name')}>
+						Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+					</th>
+					<th style={thStyle} onClick={() => handleSort('email')}>
+						Email {sortBy === 'email' && (sortOrder === 'asc' ? '↑' : '↓')}
+					</th>
+					<th style={thStyle} onClick={() => handleSort('role')}>
+						Role {sortBy === 'role' && (sortOrder === 'asc' ? '↑' : '↓')}
+					</th>
+					<th style={thStyle} onClick={() => handleSort('phone')}>
+						Phone {sortBy === 'phone' && (sortOrder === 'asc' ? '↑' : '↓')}
+					</th>
+				</tr>
             </thead>
             <tbody>
               {users.map((user, index) => (
                 <tr
-                  key={user.id}
+                  key={user.user_id}
                   style={{
                     borderBottom: '1px solid #eaeaea',
                     backgroundColor: index % 2 === 0 ? '#fafcfc' : '#fff'
                   }}
                 >
-                  <td style={tdStyle}>{index + 1}</td>
+				  <td style={tdStyle}>{index + 1}</td>
+                  <td style={tdStyle}>{user.user_id}</td>
                   <td style={tdStyle}>{user.name}</td>
                   <td style={tdStyle}>{user.email}</td>
                   <td style={tdStyle}>{user.role}</td>
-                  <td style={tdStyle}>{user.password}</td>
+                  <td style={tdStyle}>{user.phone}</td>
                 </tr>
               ))}
             </tbody>
@@ -184,11 +213,13 @@ const ViewUsers: React.FC = () => {
 };
 
 const thStyle: React.CSSProperties = {
-  textAlign: 'left',
-  padding: '0.75rem',
-  fontWeight: 600,
-  borderBottom: '1px solid #ddd'
-};
+	textAlign: 'left',
+	padding: '0.75rem',
+	fontWeight: 600,
+	borderBottom: '1px solid #ddd',
+	cursor: 'pointer'
+  };
+  
 
 const tdStyle: React.CSSProperties = {
   padding: '0.75rem',
