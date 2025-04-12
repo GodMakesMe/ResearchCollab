@@ -22,7 +22,7 @@ const getAllUsers = async (req, res) => {
   const order = sortOrder.toLowerCase() === "desc" ? "DESC" : "ASC";
 
   const allowedSortBy = ["id", "name", "email", "role", "phone"];
-  const sortColumn = allowedSortBy.includes(sortBy) ? sortBy : "id";
+  const sortColumn = allowedSortBy.includes(sortBy) ? sortBy : "user_id";
 
   try {
     let values = [];
