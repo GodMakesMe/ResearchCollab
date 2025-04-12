@@ -26,7 +26,7 @@ const getProjects = async (req, res) => {
   const offset = (pageNum - 1) * limitNum;
   const order = sortOrder.toLowerCase() === "desc" ? "DESC" : "ASC";
 
-  const allowedSortBy = ["project_id", "title", "status", "start_date", "end_date"];
+  const allowedSortBy = ["project_id", "title", "status", "start_date", "end_date", "faculty_id"];
   const sortColumn = allowedSortBy.includes(sortBy) ? sortBy : "project_id";
 
   try {
@@ -47,7 +47,7 @@ const getProjects = async (req, res) => {
     }
 
     if (search.trim() !== "") {
-      conditions.push(`(title ILIKE $${paramIndex} OR description ILIKE $${paramIndex} OR status ILIKE $${paramIndex})`);
+      conditions.push(`(title ILIKE $${paramIndex} OR description ILIKE $${paramIndex}`);
       values.push(`%${search}%`);
       paramIndex++;
     }
@@ -110,7 +110,7 @@ const getProjectById = async (req, res) => {
 const addProjects = async (req, res) => {
   const { title, description, start_data, end_date, status, faculty_id } = req.body;
   try {
-    await pool.query('INSERT INTO research_projects (title, description, start_data, end_date, status, faculty_id) VALUES ($1, $2, $3, $4, $5, $6)', [title, description, start_data, end_date, status, faculty_id]);
+    await pool.query('INSERT INTO research_projects (title, description, start_date, end_date, status, faculty_id) VALUES ($1, $2, $3, $4, $5, $6)', [title, description, start_data, end_date, status, faculty_id]);
     res.status(201).send('Projects details updated');
   } catch (err) {
     res.status(500).send('Error adding projects details');
