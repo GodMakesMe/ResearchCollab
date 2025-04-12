@@ -6,27 +6,32 @@ interface User {
   name: string;
   email: string;
   role: string;
-  joinedAt: string;
+  password: string;
 }
 
 const ViewUsers: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
-    const token = localStorage.getItem('token') || '';
+	const pageNo = 1;
+	  
     useEffect(() => {
-        axios.get('https://researchcollab-backend.up.railway.app/users', {
-            headers: {
-            Authorization: `Bearer ${token}`
-            }
-        }).then(response => {
-            setUsers(response.data);
-            setLoading(false);
-        })
-        .catch(error => {
-            console.error('Error fetching users:', error);
-            setLoading(false);
-        });
-    }, []);
+		const fetchUsers = async () => {
+		  try {
+			const token = localStorage.getItem('token'); // Retrieve the token from localStorage or wherever it's stored
+			const response = await axios.get('https://researchcollab-backend.up.railway.app/users?page=1&limit=20', {
+			  headers: {
+				'Authorization': `${token}`,
+			  },
+			});
+			console.log('Users:', response.data);
+		  } catch (error) {
+			console.error('Error fetching users:', error);
+		  }
+		};
+	  
+		fetchUsers();
+	  }, []);
+	  
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -60,7 +65,7 @@ const ViewUsers: React.FC = () => {
                 <th style={thStyle}>Name</th>
                 <th style={thStyle}>Email</th>
                 <th style={thStyle}>Role</th>
-                <th style={thStyle}>Joined At</th>
+                <th style={thStyle}>Password</th>
               </tr>
             </thead>
             <tbody>
@@ -76,7 +81,7 @@ const ViewUsers: React.FC = () => {
                   <td style={tdStyle}>{user.name}</td>
                   <td style={tdStyle}>{user.email}</td>
                   <td style={tdStyle}>{user.role}</td>
-                  <td style={tdStyle}>{new Date(user.joinedAt).toLocaleDateString()}</td>
+                  <td style={tdStyle}>{user.password}</td>
                 </tr>
               ))}
             </tbody>
