@@ -8,14 +8,13 @@ const getAllUsers = async (req, res) => {
     res.status(500).send('Error fetching users');
   }
 };
-
 const getUsers = async (req, res) => {
   const {
     category,
     sortBy = "id",
     sortOrder = "asc",
     page = 1,
-    limit = 20
+    limit = 20,
   } = req.query;
 
   const pageNum = parseInt(page, 10);
@@ -25,15 +24,17 @@ const getUsers = async (req, res) => {
 
   const allowedSortBy = ["id", "name", "email", "created_at", "category"];
   const sortColumn = allowedSortBy.includes(sortBy) ? sortBy : "id";
+  
 
   try {
     let baseQuery = "SELECT * FROM users";
     let countQuery = "SELECT COUNT(*) FROM users";
-    const values = [];
     let whereClause = "";
+    const values = [];
 
-    // ✅ Only apply filter if category is provided and not "*" or "all"
-    if (category && category !== "*" && category !== "all") {
+
+    // Only filter if category is a real value
+    if (category && category !== "*" && category.toLowerCase() !== "all") {
       whereClause = " WHERE category = $1";
       values.push(category);
     }
@@ -41,13 +42,13 @@ const getUsers = async (req, res) => {
     baseQuery += whereClause;
     countQuery += whereClause;
 
+    // Add sorting, limit, and offset
     baseQuery += ` ORDER BY ${sortColumn} ${order} LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
     values.push(limitNum, offset);
 
-    const [dataResult, countResult] = await Promise.all([
-      pool.query(baseQuery, values),
-      pool.query(countQuery, values.slice(0, whereClause ? 1 : 0)),
-    ]);
+    // Run queries
+    const dataResult = await pool.query(baseQuery, values);
+    const countResult = await pool.query(countQuery, values.slice(0, whereClause ? 1 : 0));
 
     const totalItems = parseInt(countResult.rows[0].count, 10);
     const totalPages = Math.ceil(totalItems / limitNum);
@@ -62,7 +63,7 @@ const getUsers = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Error fetching users:", err);
+    console.error("❌ Error fetching users:", err.stack);
     res.status(500).send("Error fetching users");
   }
 };
