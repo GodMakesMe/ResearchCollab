@@ -47,7 +47,7 @@ const getProjects = async (req, res) => {
     }
 
     if (search.trim() !== "") {
-      conditions.push(`(title ILIKE $${paramIndex} OR description ILIKE $${paramIndex}`);
+      conditions.push(`(title ILIKE $${paramIndex} OR description ILIKE $${paramIndex})`);
       values.push(`%${search}%`);
       paramIndex++;
     }
