@@ -9,8 +9,8 @@ const getAllUsers = async (req, res) => {
   }
 };const getUsers = async (req, res) => {
   const {
-    category,
-    sortBy = "id",
+    role,
+    sortBy = "user_id",
     sortOrder = "asc",
     page = 1,
     limit = 20,
@@ -21,7 +21,7 @@ const getAllUsers = async (req, res) => {
   const offset = (pageNum - 1) * limitNum;
   const order = sortOrder.toLowerCase() === "desc" ? "DESC" : "ASC";
 
-  const allowedSortBy = ["id", "name", "email", "created_at", "category"];
+  const allowedSortBy = ["id", "name", "email", "role", "phone"];
   const sortColumn = allowedSortBy.includes(sortBy) ? sortBy : "id";
 
   try {
@@ -29,10 +29,10 @@ const getAllUsers = async (req, res) => {
     let whereClause = "";
     let paramIndex = 1;
 
-    // Handle optional category filter
-    if (category && category !== "*" && category.toLowerCase() !== "all") {
-      whereClause = ` WHERE category = $${paramIndex++}`;
-      values.push(category);
+    // Handle optional role filter
+    if (role && role !== "*" && role.toLowerCase() !== "all") {
+      whereClause = ` WHERE role = $${paramIndex++}`;
+      values.push(role);
     }
 
     // Add LIMIT and OFFSET placeholders
@@ -51,7 +51,7 @@ const getAllUsers = async (req, res) => {
 
     const [dataResult, countResult] = await Promise.all([
       pool.query(baseQuery, values),
-      pool.query(countQuery, values.slice(0, whereClause ? 1 : 0)), // only send category to count query if applied
+      pool.query(countQuery, values.slice(0, whereClause ? 1 : 0)), // only send role to count query if applied
     ]);
 
     const totalItems = parseInt(countResult.rows[0].count, 10);
