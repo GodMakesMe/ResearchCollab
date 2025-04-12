@@ -10,15 +10,19 @@ const getAllUsers = async (req, res) => {
 };
 
 const getUsers = async (req, res) => {
-  const { category, sortBy = "id", sortOrder = "asc", page = 1, limit = 20 } = req.query;
+  const {
+    category,
+    sortBy = "id",
+    sortOrder = "asc",
+    page = 1,
+    limit = 20
+  } = req.query;
 
-  // Sanitize and parse inputs
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
   const offset = (pageNum - 1) * limitNum;
   const order = sortOrder.toLowerCase() === "desc" ? "DESC" : "ASC";
 
-  // Prevent SQL injection in ORDER BY
   const allowedSortBy = ["id", "name", "email", "created_at", "category"];
   const sortColumn = allowedSortBy.includes(sortBy) ? sortBy : "id";
 
@@ -28,23 +32,21 @@ const getUsers = async (req, res) => {
     const values = [];
     let whereClause = "";
 
-    // Filtering by category
-    if (category) {
+    // ✅ Only apply filter if category is provided and not "*" or "all"
+    if (category && category !== "*" && category !== "all") {
       whereClause = " WHERE category = $1";
       values.push(category);
     }
 
-    // Add filtering
     baseQuery += whereClause;
     countQuery += whereClause;
 
-    // Add sorting, pagination
     baseQuery += ` ORDER BY ${sortColumn} ${order} LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
     values.push(limitNum, offset);
 
     const [dataResult, countResult] = await Promise.all([
       pool.query(baseQuery, values),
-      pool.query(countQuery, category ? [category] : []),
+      pool.query(countQuery, values.slice(0, whereClause ? 1 : 0)),
     ]);
 
     const totalItems = parseInt(countResult.rows[0].count, 10);
@@ -64,6 +66,7 @@ const getUsers = async (req, res) => {
     res.status(500).send("Error fetching users");
   }
 };
+
 
 
 

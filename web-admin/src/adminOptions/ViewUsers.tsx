@@ -18,7 +18,7 @@ const ViewUsers: React.FC = () => {
 		const fetchUsers = async () => {
 		  try {
 			const token = localStorage.getItem('token'); // Retrieve the token from localStorage or wherever it's stored
-			const response = await axios.get('https://researchcollab-backend.up.railway.app/users?page=1&limit=20', {
+			const response = await axios.get('https://researchcollab-backend.up.railway.app/users', {
 			  headers: {
 				'Authorization': `${token}`,
 			  },
