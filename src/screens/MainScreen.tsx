@@ -5,21 +5,19 @@ import Icon from 'react-native-vector-icons/Ionicons';
 const Dashboard = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.profileContainer}>
           <Image
             source={{ uri: 'https://i.pravatar.cc/100' }} // Replace with your user image
             style={styles.avatar}
           />
-          <Text style={styles.welcomeText}>Welcome, Yashasvi</Text>
+          <Text style={styles.welcomeText}>Welcome, User</Text>
         </View>
         <TouchableOpacity>
           <Icon name="notifications-outline" size={28} color="#5E4BD8" />
         </TouchableOpacity>
       </View>
 
-      {/* Cards */}
       <View style={styles.cardContainer}>
         {[
           { label: 'Your Projects', color: '#D8C1FF', icon: 'folder' },
@@ -35,13 +33,12 @@ const Dashboard = () => {
         ))}
       </View>
 
-      {/* Popular Projects */}
       <Text style={styles.popularTitle}>Popular Projects</Text>
       <View style={styles.projectsContainer}>
         {[1, 2, 3, 4].map((_, idx) => (
           <View key={idx} style={styles.projectCard}>
             <Image
-              source={require('../../assets/tiger_head_generated.jpg')} // Add a local placeholder image
+              source={require('../../assets/tiger_head_generated.jpg')} 
               style={styles.projectImage}
               resizeMode="contain"
             />

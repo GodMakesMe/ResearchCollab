@@ -20,6 +20,7 @@ const app = express();
 app.use(express.json());
 
 // Routes
+app.use(cors()); // Enable CORS for all routes
 app.use('/users', authenticateAdmin, userRoutes);
 app.use('/faculty', authenticateUser, facultyRoutes);
 app.use('/expertise', expertiseRoutes);
@@ -29,7 +30,6 @@ app.use('/students', studentRoutes);
 app.use('/funding', fundingRoutes);  //funding details
 app.use('/projects', projectRoutes); //funding research_projects
 app.use('/notifications', notificationsRoutes); //notifications
-app.use(cors()); // Enable CORS for all routes
 app.use('/api/auth', authRoutes);
 app.use('/api/registration', authenticateAdmin, registrationRoutes);
 
