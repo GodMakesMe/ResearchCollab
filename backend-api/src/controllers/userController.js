@@ -17,7 +17,7 @@ const getUsers = async (req, res) => {
     page = 1,
     limit = 20,
     search = "", // ✅ added search param
-  } = req.query;
+  } = req.query; 
 
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
