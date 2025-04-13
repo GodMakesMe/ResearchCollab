@@ -175,76 +175,189 @@ const query4 = async () => {
 };
 
 // 5. List Sample Student Details (Name, Email, Program, Enrollment Year)
-const query5 = async () => {
-  const result = await db.query(`
-    SELECT u.name, u.email, s.program, s.enrollment_year
-    FROM Students s
-    INNER JOIN Users u ON s.user_id = u.user_id
-    ORDER BY s.enrollment_year, u.name
-    LIMIT 10;
-  `);
-  return result.rows;
+const query5 = async (req, res) => {
+  const { page = 1, pageSize = 10, minExpertise = 1 } = req.query;
+
+  try {
+    const result = await pool.query(`
+      SELECT 
+        u.name AS student_name,
+        ARRAY_AGG(DISTINCT e.name) AS expertise_list
+      FROM Students s
+      INNER JOIN Users u ON s.user_id = u.user_id
+      INNER JOIN Student_Expertise se ON s.student_id = se.student_id
+      INNER JOIN Expertise e ON se.skill_id = e.skill_id
+      GROUP BY u.name
+      HAVING COUNT(DISTINCT e.skill_id) >= $3
+      ORDER BY u.name
+      LIMIT $1 OFFSET $2;
+    `, [pageSize, (page - 1) * pageSize, minExpertise]);
+
+    const countResult = await pool.query(`
+      SELECT COUNT(*) as count
+      FROM (
+        SELECT s.student_id
+        FROM Students s
+        INNER JOIN Student_Expertise se ON s.student_id = se.student_id
+        GROUP BY s.student_id
+        HAVING COUNT(DISTINCT se.skill_id) >= $1
+      ) AS filtered_students;
+    `, [minExpertise]);
+
+    const totalCount = parseInt(countResult.rows[0].count, 10);
+
+    res.json({
+      data: result.rows,
+      totalCount,
+      page,
+      pageSize,
+      totalPages: Math.ceil(totalCount / pageSize),
+    });
+
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
+
+
+
 
 // 6. List Students and Their Associated Expertise
-const query6 = async () => {
-  const result = await db.query(`
-    SELECT u.name AS student_name, e.name AS expertise
-    FROM Students s
-    INNER JOIN Users u ON s.user_id = u.user_id
-    INNER JOIN Student_Expertise se ON s.student_id = se.student_id
-    INNER JOIN Expertise e ON se.skill_id = e.skill_id
-    ORDER BY u.name;
-  `);
-  return result.rows;
+const query6 = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const result = await pool.query(`
+      SELECT u.name AS student_name, e.name AS expertise
+      FROM Students s
+      INNER JOIN Users u ON s.user_id = u.user_id
+      INNER JOIN Student_Expertise se ON s.student_id = se.student_id
+      INNER JOIN Expertise e ON se.skill_id = e.skill_id
+      ORDER BY u.name
+      LIMIT $1 OFFSET $2
+    `, [limit, offset]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error in query6:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+// 7. Count the Number of Expertise Assigned to Each Student
+const query7 = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const result = await pool.query(`
+      SELECT u.name AS student_name, COUNT(se.skill_id) AS expertise_count
+      FROM Students s
+      JOIN Users u ON s.user_id = u.user_id
+      LEFT JOIN Student_Expertise se ON s.student_id = se.student_id
+      GROUP BY u.name
+      ORDER BY u.name
+      LIMIT $1 OFFSET $2
+    `, [limit, offset]);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error in query7:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
-// 7. Count the Number of Expertise Assigned to Each Student
-const query7 = async () => {
-  const result = await db.query(`
-    SELECT u.name AS student_name, COUNT(se.skill_id) AS expertise_count
-    FROM Students s
-    INNER JOIN Users u ON s.user_id = u.user_id
-    INNER JOIN Student_Expertise se ON s.student_id = se.student_id
-    GROUP BY u.name;
-  `);
-  return result.rows;
-};
 
 // 8. List Faculty with Their Aggregated Expertise Areas
-const query8 = async () => {
-  const result = await db.query(`
-    SELECT u.name AS faculty_name, f.department, string_agg(e.name, ', ') AS expertise_list
-    FROM Faculty f
-    INNER JOIN Users u ON f.user_id = u.user_id
-    INNER JOIN Faculty_Expertise fe ON f.faculty_id = fe.faculty_id
-    INNER JOIN Expertise e ON fe.expertise_id = e.skill_id
-    GROUP BY u.name, f.department;
-  `);
-  return result.rows;
+const query8 = async (req, res) => {
+  const { page = 1, pageSize = 10 } = req.query;
+
+  try {
+    const result = await pool.query(`
+      SELECT u.name AS faculty_name, f.department, string_agg(e.name, ', ') AS expertise_list
+      FROM Faculty f
+      INNER JOIN Users u ON f.user_id = u.user_id
+      INNER JOIN Faculty_Expertise fe ON f.faculty_id = fe.faculty_id
+      INNER JOIN Expertise e ON fe.expertise_id = e.skill_id
+      GROUP BY u.name, f.department
+      LIMIT $1 OFFSET $2;
+    `, [pageSize, (page - 1) * pageSize]);
+
+    // Count the total number of records for pagination
+    const countResult = await pool.query(`
+      SELECT COUNT(DISTINCT f.faculty_id)
+      FROM Faculty f
+      INNER JOIN Users u ON f.user_id = u.user_id
+      INNER JOIN Faculty_Expertise fe ON f.faculty_id = fe.faculty_id
+      INNER JOIN Expertise e ON fe.expertise_id = e.skill_id;
+    `);
+
+    const totalCount = parseInt(countResult.rows[0].count, 10);
+    res.json({
+      data: result.rows,
+      totalCount,
+      page,
+      pageSize,
+      totalPages: Math.ceil(totalCount / pageSize),
+    });
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 // 9. Find the Top 2 Most Common Expertise Among Students
-const query9 = async () => {
-  const result = await db.query(`
-    SELECT e.name AS expertise, COUNT(se.student_id) AS student_count
-    FROM Student_Expertise se
-    INNER JOIN Expertise e ON se.skill_id = e.skill_id
-    GROUP BY e.name
-    ORDER BY student_count DESC
-    LIMIT 2;
-  `);
-  return result.rows;
+const query9 = async (req, res) => {
+  const { page = 1, pageSize = 10, topN = 2 } = req.query;
+
+  try {
+    const result = await pool.query(`
+      SELECT e.name AS expertise, COUNT(se.student_id) AS student_count
+      FROM Student_Expertise se
+      INNER JOIN Expertise e ON se.skill_id = e.skill_id
+      GROUP BY e.name
+      ORDER BY student_count DESC
+      LIMIT $1 OFFSET $2;
+    `, [topN, (page - 1) * pageSize]);
+
+    // Count the total number of expertise entries for pagination
+    const countResult = await pool.query(`
+      SELECT COUNT(DISTINCT e.skill_id)
+      FROM Expertise e
+      INNER JOIN Student_Expertise se ON e.skill_id = se.skill_id;
+    `);
+
+    const totalCount = parseInt(countResult.rows[0].count, 10);
+    res.json({
+      data: result.rows,
+      totalCount,
+      page,
+      pageSize,
+      totalPages: Math.ceil(totalCount / pageSize),
+    });
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 // 10. Get the Percentage Breakdown of Users by Role
-const query10 = async () => {
-  const result = await db.query(`
-    SELECT role, ROUND((COUNT(*) * 100.0 / (SELECT COUNT(*) FROM Users)), 2) AS percentage
-    FROM Users
-    GROUP BY role;
-  `);
-  return result.rows;
+const query10 = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT role, ROUND((COUNT(*) * 100.0 / (SELECT COUNT(*) FROM Users)), 2) AS percentage
+      FROM Users
+      GROUP BY role;
+    `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 // 11. Average number of expertise areas per faculty member

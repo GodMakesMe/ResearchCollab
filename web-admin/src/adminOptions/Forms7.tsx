@@ -1,10 +1,35 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { backend_url } from "../../src/utils/constants"; // update if needed
 
 const ExpertiseCountByStudentForm: React.FC = () => {
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<any[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
-  const handleQuery = () => {
-    setResult("Getting expertise count for each student...");
+  const handleQuery = async (newPage = page) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Token not found.");
+        return;
+      }
+
+      const response = await axios.get(`${backend_url}/query/query7`, {
+        headers: { Authorization: token },
+        params: { page: newPage, limit }
+      });
+
+      setResult(response.data);
+      setPage(newPage);
+    } catch (error) {
+      console.error("Error fetching query 7:", error);
+      setResult([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,7 +52,7 @@ const ExpertiseCountByStudentForm: React.FC = () => {
         marginBottom: '2rem',
       }}>
         <button
-          onClick={handleQuery}
+          onClick={() => handleQuery()}
           style={{
             backgroundColor: '#0f6f6f',
             color: 'white',
@@ -52,7 +77,38 @@ const ExpertiseCountByStudentForm: React.FC = () => {
         <h4 style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '0.75rem' }}>
           Results
         </h4>
-        <p>{result ?? "Query results will appear here."}</p>
+        {loading ? (
+          <p>Loading...</p>
+        ) : result && result.length > 0 ? (
+          <>
+            <ul>
+              {result.map((row, idx) => (
+                <li key={idx}>
+                  <strong>{row.student_name}</strong>: {row.expertise_count} expertise
+                </li>
+              ))}
+            </ul>
+
+            <div style={{ marginTop: '1rem' }}>
+              <button
+                onClick={() => handleQuery(page - 1)}
+                disabled={page === 1}
+                style={{ marginRight: '1rem' }}
+              >
+                Previous
+              </button>
+              <span>Page {page}</span>
+              <button
+                onClick={() => handleQuery(page + 1)}
+                style={{ marginLeft: '1rem' }}
+              >
+                Next
+              </button>
+            </div>
+          </>
+        ) : (
+          <p>No results found.</p>
+        )}
       </div>
     </div>
   );

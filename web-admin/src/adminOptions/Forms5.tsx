@@ -1,12 +1,36 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { backend_url } from "../utils/constants";
+import { ClipLoader } from 'react-spinners';
 
-const MoreThanXExpertiseFacultyForm = () => {
+const MoreThanXExpertiseStudentsForm = () => {
   const [minExpertise, setMinExpertise] = useState(1);
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<any[] | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleQuery = () => {
-    // setResult(Showing faculty members with more than ${minExpertise} expertise area(s).);
+  const handleQuery = async () => {
+    const pageSize = 10; // Set a default value for pageSize
+    setLoading(true);
+    try {
+      const page = 1; // Initialize page with a default value
+      const response = await axios.get(`${backend_url}/query/query5`, {
+        headers: {
+          Authorization: localStorage.getItem("token") || "",
+        },
+        params: {
+          page,
+          pageSize,
+          minExpertise,
+        },
+      });
+      setResult(response.data.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -16,7 +40,7 @@ const MoreThanXExpertiseFacultyForm = () => {
         marginBottom: '1.5rem',
         color: '#0f6f6f'
       }}>
-        Faculty with More Than X Expertise Areas
+        Students with More Than X Expertise Areas
       </h3>
 
       <div style={{
@@ -73,10 +97,25 @@ const MoreThanXExpertiseFacultyForm = () => {
         <h4 style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '0.75rem' }}>
           Results
         </h4>
-        <p>{result ?? "Query results will appear here."}</p>
+
+        {loading ? (
+          <ClipLoader color="#0f6f6f" loading={loading} size={50} />
+        ) : result === null ? (
+          <p>Query results will appear here.</p>
+        ) : result.length === 0 ? (
+          <p>No faculty found with more than {minExpertise} expertise area(s).</p>
+        ) : (
+            <ul>
+            {result.map((faculty, index) => (
+              <li key={index}>
+                <strong>{faculty.student_name}</strong> – {faculty.expertise_list.join(", ")}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
 };
 
-export default MoreThanXExpertiseFacultyForm;
+export default MoreThanXExpertiseStudentsForm;
