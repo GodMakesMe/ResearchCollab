@@ -117,4 +117,4 @@ const addStudents = async (req, res) => {
   }
 };
 
-module.exports = { getAllStudents, addStudents, editStudents, deleteStudents };
+module.exports = { getAllStudents, getStudents, addStudents, editStudents, deleteStudents, partialUpdateStudents };
