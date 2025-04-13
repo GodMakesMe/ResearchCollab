@@ -80,8 +80,11 @@ const QueryBox: React.FC<QueryBoxProps> = ({
 const FacultyExpertiseQuery = () => {
   const [results, setResults] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
-  const handleQuery = async () => {
+  const handleQuery = async (currentPage: number = page) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
@@ -96,18 +99,21 @@ const FacultyExpertiseQuery = () => {
         headers: {
           'Authorization': `${token}`,
         },
+        params: {
+          page: currentPage,
+          pageSize,
+        },
       });
 
       // Handle the response data, formatting it into a readable string
-      const formatted = response.data
+      const formatted = response.data.data
         .map((row: any) => `${row.faculty_name} (Expertise Count: ${row.expertise_count})`)
         .join("\n");
 
-      // Display formatted results
       setResults(formatted || "No results found.");
+      setTotalPages(response.data.pagination.totalPages); // Set totalPages from response
     } catch (error: any) {
-        console.error("❌ Error fetching data:", error);
-      // Enhanced error handling
+      console.error("❌ Error fetching data:", error);
       if (axios.isAxiosError(error)) {
         setResults(`Error: ${error.response?.data?.message || error.message}`);
       } else {
@@ -118,14 +124,56 @@ const FacultyExpertiseQuery = () => {
     }
   };
 
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return; // Prevent going out of bounds
+    setPage(newPage);
+    handleQuery(newPage);
+  };
+
   return (
-    <QueryBox
-      title="Faculty with Multiple Expertise Areas"
-      description="This query finds faculty members who have more than one area of expertise."
-      buttonText={loading ? "Loading..." : "Execute Query"}
-      onClick={handleQuery}
-      result={results}
-    />
+    <div>
+      <QueryBox
+        title="Faculty with Multiple Expertise Areas"
+        description="This query finds faculty members who have more than one area of expertise."
+        buttonText={loading ? "Loading..." : "Execute Query"}
+        onClick={() => handleQuery(page)}
+        result={results}
+      />
+      <div style={{ textAlign: "center", marginTop: "2rem" }}>
+        <button
+          onClick={() => handlePageChange(page - 1)}
+          disabled={page === 1 || loading}
+          style={{
+            marginRight: "1rem",
+            padding: "0.5rem 1rem",
+            backgroundColor: "#0f6f6f",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: page === 1 || loading ? "not-allowed" : "pointer",
+          }}
+        >
+          Prev
+        </button>
+        <span style={{ fontSize: "1rem", margin: "0 1rem" }}>
+          Page {page} of {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(page + 1)}
+          disabled={page === totalPages || loading}
+          style={{
+            padding: "0.5rem 1rem",
+            backgroundColor: "#0f6f6f",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: page === totalPages || loading ? "not-allowed" : "pointer",
+          }}
+        >
+          Next
+        </button>
+      </div>
+    </div>
   );
 };
 
