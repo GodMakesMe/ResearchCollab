@@ -9,18 +9,18 @@ import ViewProjects from '../adminOptions/ViewProjects';
 // import AddFaculty from '../adminOptions/AddFaculty';
 // import AddProjectDetails from '../adminOptions/AddProjectDetails';
 
-// import EditUsers from '../adminOptions/EditUsers';
-// import EditFaculty from '../adminOptions/EditFaculty';
-// import EditProjects from '../adminOptions/EditProjects';
+import EditUsers from '../adminOptions/EditUsers';
+import EditFaculty from '../adminOptions/EditFaculty';
+import EditProjects from '../adminOptions/EditProjects';
 
 // import AnalyticsOverview from '../adminOptions/AnalyticsOverview';
 // import AnalyticsTrends from '../adminOptions/AnalyticsTrends';
 
-import FundingGrants from '../adminOptions/ViewFunding';
+// import FundingGrants from '../adminOptions/ViewFunding';
 // import FundingDonations from '../adminOptions/FundingDonations';
 
 import PendingUserRequests from '../adminOptions/PendingUserRequests';
-import FundingForm from '../adminOptions/ViewFunding';
+// import FundingForm from '../adminOptions/ViewFunding';
 import FundingView from '../adminOptions/ViewFunding';
 // import PendingFacultyRequests from '../adminOptions/PendingFacultyRequests';
 
@@ -95,12 +95,12 @@ const AdminDashboard = () => {
       //   return <AddProjectDetails />;
   
       // // Edit Data
-      // case 'Edit Data > Users':
-      //   return <EditUsers />;
-      // case 'Edit Data > Faculty':
-      //   return <EditFaculty />;
-      // case 'Edit Data > Projects':
-      //   return <EditProjects />;
+      case 'Edit Data > Users':
+        return <EditUsers />;
+      case 'Edit Data > Faculty':
+        return <EditFaculty />;
+      case 'Edit Data > Projects':
+        return <EditProjects />;
   
       // // Analytics Page
       // case 'Analytics Page > Overview':

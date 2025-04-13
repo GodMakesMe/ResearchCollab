@@ -2,6 +2,48 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 const pool = require('../db/db');  // Ensure pool is correctly imported
+const { OAuth2Client } = require('google-auth-library');
+
+// Create a new OAuth2 client with your Google Client ID
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); // Make sure to set this in your .env file
+
+// Handle Google Login
+const googleLogin = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Verify the token with Google
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID, // Your Google Client ID
+    });
+
+    // Extract the payload from the Google token
+    const payload = ticket.getPayload();
+
+    // Check if the user exists in the database
+    const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [payload.email]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const user = rows[0];
+
+    // Generate JWT token
+    const jwtToken = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role }, // Payload
+      process.env.JWT_SECRET,  // Secret key
+      { expiresIn: '1h' } // Token expiration
+    );
+
+    res.json({ message: 'Login successful', token: `Bearer ${jwtToken}` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error during Google login' });
+  }
+};
+
 
 // User Login
 const login = async (req, res) => {
@@ -77,4 +119,4 @@ const submitRegistrationRequest = async (req, res) => {
 
 
 
-module.exports = { login, register, submitRegistrationRequest };
+module.exports = { login, register, submitRegistrationRequest, googleLogin };
