@@ -17,6 +17,27 @@ const authenticateUser = (req, res, next) => {
     }
 };
 
+// Faculty-only Access
+const authenticateFaculty = (req, res, next) => {
+    authenticateUser(req, res, () => {
+        if (req.user.role !== 'faculty') {
+            return res.status(403).json({ message: 'Access denied: Faculty only' });
+        }
+        next();
+    });
+};
+
+// Student-only Access
+const authenticateStudent = (req, res, next) => {
+    authenticateUser(req, res, () => {
+        if (req.user.role !== 'student') {
+            return res.status(403).json({ message: 'Access denied: Students only' });
+        }
+        next();
+    });
+};
+
+
 // Admin-only Access
 const authenticateAdmin = (req, res, next) => {
     authenticateUser(req, res, () => {
@@ -27,4 +48,4 @@ const authenticateAdmin = (req, res, next) => {
     });
 };
 
-module.exports = { authenticateUser, authenticateAdmin };
+module.exports = { authenticateUser, authenticateAdmin, authenticateFaculty, authenticateStudent };

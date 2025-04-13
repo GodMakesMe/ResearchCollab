@@ -13,10 +13,30 @@ const WebAdminLogin = () => {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const navigate = useNavigate();
 
-  const handleGoogleResponse = (response: any) => {
+  const handleGoogleResponse = async (response: any) => {
     console.log('Google login response:', response);
-    // You can send response.credential to your backend
+  
+    // 👇 This is where you should extract and send token to your backend
+    try {
+      const credential = response.credential; // this is a JWT
+      const data = await login(credential); // 🔥 Call your backend with Google token
+      console.log('Google login successful:', data);
+  
+      if (data.role !== 'admin') {
+        alert('You do not have permission to access this page.');
+        localStorage.removeItem('token');
+        setStatus('error');
+        return;
+      }
+  
+      setStatus('success');
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Google login failed:', err);
+      setStatus('error');
+    }
   };
+  
 
   const handleNormalLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +45,13 @@ const WebAdminLogin = () => {
 
     try {
       const data = await login(email, password);
+      console.log('role:', data.role);
+      if (data.role !== 'admin') {
+        alert('You do not have permission to access this page.');
+        localStorage.removeItem('token');
+        setStatus('error');
+        return;
+      }
       console.log('Login successful:', data);
       setStatus('success');
       navigate('/dashboard'); 
@@ -40,7 +67,7 @@ const WebAdminLogin = () => {
   useEffect(() => {
     if (window.google && googleDivRef.current) {
       window.google.accounts.id.initialize({
-        client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+        client_id: '772822804133-opg9mba69tr4rb24bbvurfigqf68kqup.apps.googleusercontent.com',
         callback: handleGoogleResponse,
       });
 
