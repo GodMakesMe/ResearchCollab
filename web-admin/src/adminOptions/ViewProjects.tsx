@@ -119,7 +119,8 @@ const ViewProjects: React.FC = () => {
             </thead>
             <tbody>
               {projects.map((project, index) => (
-                <tr key={project.id} style={{
+                  <tr key={project.project_id} style={{
+
                   borderBottom: '1px solid #eaeaea',
                   backgroundColor: index % 2 === 0 ? '#fafcfc' : '#fff'
                 }}>

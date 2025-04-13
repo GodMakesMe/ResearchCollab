@@ -78,7 +78,7 @@ const login = async (req, res) => {
     }
 };
 
-// Register User
+// Register User same as Add User
 const register = async (req, res) => {
     const { name, email, phone, role, password } = req.body;
     try {
@@ -88,7 +88,7 @@ const register = async (req, res) => {
 
         await pool.query(
             'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5)', 
-            [name, email, phone, role || 'user', hashedPassword]     // default role is 'user' if not defined
+            [name, email, phone, role || 'student', hashedPassword]     // default role is 'user' if not defined
         );
 
         res.status(201).json({ message: 'User registered successfully' });

@@ -19,4 +19,33 @@ const addNotifications = async (req, res) => {
   }
 };
 
-module.exports = { getAllNotifications, addNotifications };
+const deleteNotifications = async (req, res) => {
+  const { notification_id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM notifications WHERE notification_id = $1', [notification_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Notification not found');
+    }
+    res.status(200).send('Notification deleted successfully');
+  } catch (err) {
+    console.error('Error deleting notification:', err);
+    res.status(500).send('Error deleting notification details');
+  }
+}
+
+const editNotifications = async (req, res) => {
+  const { notification_id } = req.params;
+  const { userid, message, craeted_at, is_read } = req.body;
+  try {
+    const result = await pool.query('UPDATE notifications SET userid = $1, message = $2, craeted_at = $3, is_read = $4 WHERE notification_id = $5', [userid, message, craeted_at, is_read, notification_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Notification not found');
+    }
+    res.status(200).send('Notification details updated');
+  } catch (err) {
+    console.error('Error updating notification:', err);
+    res.status(500).send('Error updating notification details');
+  }
+}
+
+module.exports = { getAllNotifications, addNotifications, editNotifications, deleteNotifications };

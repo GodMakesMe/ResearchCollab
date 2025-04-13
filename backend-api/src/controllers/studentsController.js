@@ -64,6 +64,47 @@ module.exports = {
   getStudents
 };
 
+const editStudents = async (req, res) => {
+  const { studentit, userid, enrollment_year, program } = req.body;
+  const { student_id } = req.params;
+
+  try {
+    await pool.query('UPDATE students SET studentit = $1, userid = $2, enrollment_year = $3, program = $4 WHERE student_id = $5', [studentit, userid, enrollment_year, program, student_id]);
+    res.status(200).send('Student details updated');
+  } catch (err) {
+    res.status(500).send('Error updating student details');
+  }
+};
+
+const deleteStudents = async (req, res) => {
+  const { student_id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM students WHERE student_id = $1', [student_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Student not found');
+    }
+    res.status(200).send('Student deleted successfully');
+  } catch (err) {
+    console.error('Error deleting student:', err);
+    res.status(500).send('Error deleting student details');
+  }
+}
+
+const partialUpdateStudents = async (req, res) => {
+  const { student_id } = req.params;
+  const { studentit, userid, enrollment_year, program } = req.body;
+  try {
+    const result = await pool.query('UPDATE students SET studentit = COALESCE($1, studentit), userid = COALESCE($2, userid), enrollment_year = COALESCE($3, enrollment_year), program = COALESCE($4, program) WHERE student_id = $5', [studentit, userid, enrollment_year, program, student_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Student not found');
+    }
+    res.status(200).send('Student details updated');
+  } catch (err) {
+    console.error('Error updating student:', err);
+    res.status(500).send('Error updating student details');
+  }
+}
+
 
 
 const addStudents = async (req, res) => {
@@ -76,4 +117,4 @@ const addStudents = async (req, res) => {
   }
 };
 
-module.exports = { getAllStudents, addStudents };
+module.exports = { getAllStudents, addStudents, editStudents, deleteStudents };

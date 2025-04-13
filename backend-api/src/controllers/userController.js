@@ -65,13 +65,9 @@ const getUsers = async (req, res) => {
       ${whereClause}
     `;
 
-    console.log("📄 Base Query:", baseQuery);
-    console.log("📄 Count Query:", countQuery);
-    console.log("📦 Values:", values);
-
     const [dataResult, countResult] = await Promise.all([
       pool.query(baseQuery, values),
-      pool.query(countQuery, values.slice(0, values.length - 2)), // exclude limit and offset
+      pool.query(countQuery, values.slice(0, values.length - 2)),
     ]);
 
     const totalItems = parseInt(countResult.rows[0].count, 10);
@@ -89,6 +85,78 @@ const getUsers = async (req, res) => {
   } catch (err) {
     console.error("❌ Error fetching users:", err.stack);
     res.status(500).send("Error fetching users");
+  }
+};
+
+const editUser = async (req, res) => {
+  const { user_id } = req.params;
+  const { name, email, role, phone } = req.body;
+  if (!name || !email || !role || !phone) {
+    return res.status(400).send('All fields are required');
+  }
+
+  console.log('Updating user (user_id, name, email, role, phone):', { user_id, name, email, role, phone });
+
+  try {
+    const result = await pool.query(
+      'UPDATE users SET name = $1, email = $2, role = $3, phone = $4 WHERE user_id = $5',
+      [name, email, role, phone, user_id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).send('User not found');
+    }
+    res.status(200).send('User updated successfully');
+  } catch (err) {
+    res.status(500).send('Error updating user');
+  }
+}
+
+const deleteUser = async (req, res) => {
+  const { user_id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM users WHERE user_id = $1', [user_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('User not found');
+    }
+    res.status(200).send('User deleted successfully');
+  } catch (err) {
+    res.status(500).send('Error deleting user');
+  }
+};
+
+const partialUpdateUser = async (req, res) => {
+  const { user_id } = req.params;
+  const { name, email, role, phone } = req.body;
+  const updates = [];
+  const values = [];
+  let index = 1;
+  if (name) {
+    updates.push(`name = $${index++}`);
+    values.push(name);
+  }
+  if (email) {
+    updates.push(`email = $${index++}`);
+    values.push(email);
+  }
+  if (role) {
+    updates.push(`role = $${index++}`);
+    values.push(role);
+  }
+  if (phone) {
+    updates.push(`phone = $${index++}`);
+    values.push(phone);
+  }
+  if (updates.length === 0) {
+    return res.status(400).send('No fields provided to update');
+  }
+  values.push(user_id);
+  const query = `UPDATE users SET ${updates.join(', ')} WHERE user_id = $${index}`;
+  try {
+     await pool.query(query, values);
+      res.status(200).send('User updated successfully');
+  } catch (err) {
+    console.error('Error updating user:', err);
+    res.status(500).send('Error updating user details');
   }
 };
 
@@ -127,4 +195,4 @@ const addUser = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, addUser, getCount, getUserById, getUsers };
+module.exports = { getAllUsers, addUser, getCount, getUserById, getUsers, editUser, deleteUser, partialUpdateUser };

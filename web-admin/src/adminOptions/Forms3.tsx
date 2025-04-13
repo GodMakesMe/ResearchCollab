@@ -2,16 +2,16 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { backend_url } from '../utils/constants';
 
-interface User {
-  user_id: number;
+interface Faculty {
+  faculty_id: number;
   name: string;
   email: string;
-  role: string;
+  department: string;
   phone: string;
 }
 
-const EditUsers: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
+const EditFaculty: React.FC = () => {
+  const [faculty, setFaculties] = useState<Faculty[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<string>('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -22,24 +22,24 @@ const EditUsers: React.FC = () => {
   const limit = 20;
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchFaculties = async () => {
       setLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(backend_url + '/users', {
+        const response = await axios.get(backend_url + '/faculty', {
           headers: { Authorization: `${token}` },
           params: { search, page, limit, sortBy, sortOrder },
         });
-        setUsers(response.data.users);
+        setFaculties(response.data.faculty);
         setTotalPages(response.data.pagination.totalPages);
       } catch (error) {
-        console.error('❌ Error fetching users:', error);
+        console.error('❌ Error fetching faculty:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUsers();
+    fetchFaculties();
   }, [search, page, sortBy, sortOrder]);
 
   const handleSort = (field: string) => {
@@ -51,35 +51,34 @@ const EditUsers: React.FC = () => {
     }
   };
 
-  const handleInputChange = (index: number, field: keyof User, value: string) => {
-    const updatedUsers = [...users];
-    (updatedUsers[index] as any)[field] = value;
-    setUsers(updatedUsers);
+  const handleInputChange = (index: number, field: keyof Faculty, value: string) => {
+    const updatedFaculties = [...faculty];
+    (updatedFaculties[index] as any)[field] = value;
+    setFaculties(updatedFaculties);
   };
 
-  const handleEditSubmit = async (user: User) => {
+  const handleEditSubmit = async (faculty: Faculty) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${backend_url}/users/${user.user_id}`, user, {
+      await axios.put(`${backend_url}/faculty/${faculty.faculty_id}`, faculty, {
         headers: { Authorization: `${token}` },
       });
-      alert(`✔️ User ${user.user_id} updated`);
+      alert(`✔️ Faculty ${faculty.faculty_id} updated`);
     } catch (error) {
-      alert(`❌ Error updating user ${user.user_id}`);
-      console.error('Error updating user:', error);
+      console.error('Error updating faculty:', error);
     }
   };
 
-  const handleDelete = async (user_id: number) => {
+  const handleDelete = async (faculty_id: number) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`${backend_url}/users/${user_id}`, {
+      await axios.delete(`${backend_url}/faculty/${faculty_id}`, {
         headers: { Authorization: `${token}` },
       });
-      setUsers(users.filter((user) => user.user_id !== user_id));
-      alert(`🗑️ User ${user_id} deleted`);
+      setFaculties(faculty.filter((faculty) => faculty.faculty_id !== faculty_id));
+      alert(`🗑️ Faculty ${faculty_id} deleted`);
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error('Error deleting faculty:', error);
     }
   };
 
@@ -98,13 +97,8 @@ const EditUsers: React.FC = () => {
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif' }}>
-      <h3 style={{
-        fontSize: '1.8rem',
-        fontWeight: '600',
-        marginBottom: '1.5rem',
-        color: '#0f6f6f'
-      }}>
-        Edit Users
+      <h3 style={{ fontSize: '1.8rem', fontWeight: '600', marginBottom: '1.5rem', color: '#0f6f6f' }}>
+        Edit Faculty
       </h3>
 
       <div style={{ marginBottom: '1rem' }}>
@@ -125,77 +119,45 @@ const EditUsers: React.FC = () => {
         />
       </div>
 
-      <div style={{
-        backgroundColor: '#ffffff',
-        borderRadius: '16px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-        padding: '2rem',
-        overflowX: 'auto'
-      }}>
+      <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)', padding: '2rem', overflowX: 'auto' }}>
         {loading ? (
-          <div style={{ textAlign: 'center', color: '#999' }}>Loading users...</div>
+          <div style={{ textAlign: 'center', color: '#999' }}>Loading faculty data...</div>
         ) : (
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: '0.95rem'
-          }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
             <thead>
               <tr style={{ backgroundColor: '#f0f4f7', color: '#0f6f6f' }}>
-                <th style={thStyle}> # </th>
-                <th style={thStyle} onClick={() => handleSort('user_id')}> user id {sortBy === 'user_id' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+                <th style={thStyle}>#</th>
+                <th style={thStyle} onClick={() => handleSort('faculty_id')}>faculty id {sortBy === 'faculty_id' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                 <th style={thStyle} onClick={() => handleSort('name')}>Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                 <th style={thStyle} onClick={() => handleSort('email')}>Email {sortBy === 'email' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-                <th style={thStyle} onClick={() => handleSort('role')}>Role {sortBy === 'role' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+                <th style={thStyle} onClick={() => handleSort('department')}>Department {sortBy === 'department' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                 <th style={thStyle} onClick={() => handleSort('phone')}>Phone {sortBy === 'phone' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                 <th style={thStyle}>✔️</th>
                 <th style={thStyle}>🗑️</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((user, index) => (
-                <tr
-                  key={user.user_id}
-                  style={{
-                    borderBottom: '1px solid #eaeaea',
-                    backgroundColor: index % 2 === 0 ? '#fafcfc' : '#fff'
-                  }}
-                >
+              {faculty.map((faculty, index) => (
+                <tr key={faculty.faculty_id} style={{ borderBottom: '1px solid #eaeaea', backgroundColor: index % 2 === 0 ? '#fafcfc' : '#fff' }}>
                   <td style={tdStyle}>{index + 1}</td>
-                  <td style={tdStyle}>{user.user_id}</td>
+                  <td style={tdStyle}>{faculty.faculty_id}</td>
                   <td style={tdStyle}>
-                    <input
-                      value={user.name}
-                      onChange={(e) => handleInputChange(index, 'name', e.target.value)}
-                      style={inputStyle}
-                    />
+                    <input value={faculty.name} onChange={(e) => handleInputChange(index, 'name', e.target.value)} style={inputStyle} />
                   </td>
                   <td style={tdStyle}>
-                    <input
-                      value={user.email}
-                      onChange={(e) => handleInputChange(index, 'email', e.target.value)}
-                      style={inputStyle}
-                    />
+                    <input value={faculty.email} onChange={(e) => handleInputChange(index, 'email', e.target.value)} style={inputStyle} />
                   </td>
                   <td style={tdStyle}>
-                    <input
-                      value={user.role}
-                      onChange={(e) => handleInputChange(index, 'role', e.target.value)}
-                      style={inputStyle}
-                    />
+                    <input value={faculty.department} onChange={(e) => handleInputChange(index, 'department', e.target.value)} style={inputStyle} />
                   </td>
                   <td style={tdStyle}>
-                    <input
-                      value={user.phone}
-                      onChange={(e) => handleInputChange(index, 'phone', e.target.value)}
-                      style={inputStyle}
-                    />
+                    <input value={faculty.phone} onChange={(e) => handleInputChange(index, 'phone', e.target.value)} style={inputStyle} />
                   </td>
                   <td style={tdStyle}>
-                    <button onClick={() => handleEditSubmit(user)} style={iconButtonStyle}>✔️</button>
+                    <button onClick={() => handleEditSubmit(faculty)} style={iconButtonStyle}>✔️</button>
                   </td>
                   <td style={tdStyle}>
-                    <button onClick={() => handleDelete(user.user_id)} style={iconButtonStyle}>🗑️</button>
+                    <button onClick={() => handleDelete(faculty.faculty_id)} style={iconButtonStyle}>🗑️</button>
                   </td>
                 </tr>
               ))}
@@ -219,14 +181,7 @@ const EditUsers: React.FC = () => {
                 setPage(inputPage);
               }
             }}
-            style={{
-              padding: '0.5rem',
-              fontSize: '1rem',
-              borderRadius: '6px',
-              border: '1px solid #ccc',
-              width: '80px',
-              marginRight: '0.5rem',
-            }}
+            style={{ padding: '0.5rem', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc', width: '80px', marginRight: '0.5rem' }}
           />
           <span> / {totalPages}</span>
         </div>
@@ -276,4 +231,4 @@ const iconButtonStyle: React.CSSProperties = {
   fontSize: '1rem',
 };
 
-export default EditUsers;
+export default EditFaculty;

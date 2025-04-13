@@ -107,6 +107,81 @@ const getProjectById = async (req, res) => {
   }
 }
 
+const deleteProject = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM research_projects WHERE project_id = $1', [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Project not found');
+    }
+    res.status(200).send('Project deleted successfully');
+  } catch (err) {
+    console.error('Error deleting project:', err);
+    res.status(500).send('Error deleting project details');
+  }
+}
+const editProject = async (req, res) => {
+  const { id } = req.params;
+  const { title, description, start_date, end_date, status, faculty_id } = req.body;
+  try {
+    const result = await pool.query('UPDATE research_projects SET title = $1, description = $2, start_date = $3, end_date = $4, status = $5, faculty_id = $6 WHERE project_id = $7', [title, description, start_date, end_date, status, faculty_id, id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Project not found');
+    }
+    res.status(200).send('Project details updated');
+  } catch (err) {
+    console.error('Error updating project:', err);
+    res.status(500).send('Error updating project details');
+  }
+}
+
+const partialUpdateProject = async (req, res) => {
+  const { id } = req.params;
+  const { title, description, start_date, end_date, status, faculty_id } = req.body;
+  const updates = [];
+  const values = [];
+  let index = 1;
+  if (title) {
+    updates.push(`title = $${index++}`);
+    values.push(title);
+  }
+  if (description) {
+    updates.push(`description = $${index++}`);
+    values.push(description);
+  }
+  if (start_date) {
+    updates.push(`start_date = $${index++}`);
+    values.push(start_date);
+  }
+  if (end_date) {
+    updates.push(`end_date = $${index++}`);
+    values.push(end_date);
+  }
+  if (status) {
+    updates.push(`status = $${index++}`);
+    values.push(status);
+  }
+  if (faculty_id) {
+    updates.push(`faculty_id = $${index++}`);
+    values.push(faculty_id);
+  }
+  if (updates.length === 0) {
+    return res.status(400).send('No fields to update');
+  }
+  values.push(id);
+  const query = `UPDATE research_projects SET ${updates.join(', ')} WHERE project_id = $${index}`;
+  try {
+    const result = await pool.query(query, values);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Project not found');
+    }
+    res.status(200).send('Project details updated');
+  } catch (err) {
+    console.error('Error updating project:', err);
+    res.status(500).send('Error updating project details');
+  }
+};
+
 const addProjects = async (req, res) => {
   const { title, description, start_data, end_date, status, faculty_id } = req.body;
   try {
@@ -117,4 +192,4 @@ const addProjects = async (req, res) => {
   }
 };
 
-module.exports = { getAllProjects, addProjects, getProjects, getProjectById };
+module.exports = { getAllProjects, addProjects, getProjects, getProjectById, editProject, deleteProject, partialUpdateProject };

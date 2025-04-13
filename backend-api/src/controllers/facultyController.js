@@ -68,6 +68,77 @@ const getAllFaculty = async (req, res) => {
 };
 
 
+const editFaculty = async (req, res) => {
+  const { faculty_id } = req.params;
+  const { userid, department } = req.body;
+  try {
+    const result = await pool.query('UPDATE faculty SET userid = $1, department = $2 WHERE faculty_id = $3', [userid, department, faculty_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Faculty not found');
+    }
+    res.status(200).send('Faculty details updated');
+  } catch (err) {
+    console.error('Error updating faculty:', err);
+    res.status(500).send('Error updating faculty details');
+  }
+}
+
+const deleteFaculty = async (req, res) => {
+  const { faculty_id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM faculty WHERE faculty_id = $1', [faculty_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Faculty not found');
+    }
+    res.status(200).send('Faculty deleted successfully');
+  } catch (err) {
+    console.error('Error deleting faculty:', err);
+    res.status(500).send('Error deleting faculty details');
+  }
+}
+
+const partialUpdateFaculty = async (req, res) => {
+  const { faculty_id } = req.params;
+  const { department, name, email, phone } = req.body;
+
+  const facultyUpdates = [];
+  const values = [];
+  let index = 1;
+
+  if (department) {
+    facultyUpdates.push(`department = $${index++}`);
+    values.push(department);
+  }
+
+  try {
+    const userFields = { name, email, phone };
+    if (Object.values(userFields).some(val => val)) {
+      user_id = await pool.query('SELECT user_id FROM faculty WHERE faculty_id = $1', [faculty_id]);
+      if (user_id.rowCount === 0 || user_id.rowCount > 1) {
+        return res.status(404).send('Faculty not found');
+      }
+      user_id = user_id.rows[0].user_id;
+      await updateUserPartially(user_id, userFields); 
+    }
+
+    // Update faculty table if needed
+    if (facultyUpdates.length > 0) {
+      values.push(faculty_id);
+      const query = `UPDATE faculty SET ${facultyUpdates.join(', ')} WHERE faculty_id = $${index}`;
+      const result = await pool.query(query, values);
+
+      if (result.rowCount === 0) {
+        return res.status(404).send('Faculty not found');
+      }
+    }
+
+    res.status(200).send('Faculty updated successfully');
+  } catch (err) {
+    console.error('Error updating faculty:', err.message);
+    res.status(500).send('Internal server error');
+  }
+};
+
 const addFaculty = async (req, res) => {
   const { userid, department } = req.body;
   try {
@@ -78,4 +149,4 @@ const addFaculty = async (req, res) => {
   }
 };
 
-module.exports = { getAllFaculty, addFaculty };
+module.exports = { getAllFaculty, addFaculty, editFaculty, deleteFaculty, partialUpdateFaculty };

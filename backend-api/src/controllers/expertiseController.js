@@ -18,5 +18,33 @@ const addExpertise = async (req, res) => {
     res.status(500).send('Error adding expertise details');
   }
 };
+const deleteExpertise = async (req, res) => {
+  const { expertise_id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM expertise WHERE expertise_id = $1', [expertise_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Expertise not found');
+    }
+    res.status(200).send('Expertise deleted successfully');
+  } catch (err) {
+    console.error('Error deleting expertise:', err);
+    res.status(500).send('Error deleting expertise details');
+  }
+};
 
-module.exports = { getAllExpertise, addExpertise };
+const editExpertise = async (req, res) => {
+  const { expertise_id } = req.params;
+  const { name, description } = req.body;
+  try {
+    const result = await pool.query('UPDATE expertise SET name = $1, description = $2 WHERE expertise_id = $3', [name, description, expertise_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Expertise not found');
+    }
+    res.status(200).send('Expertise details updated');
+  } catch (err) {
+    console.error('Error updating expertise:', err);
+    res.status(500).send('Error updating expertise details');
+  }
+};
+
+module.exports = { getAllExpertise, addExpertise, editExpertise, deleteExpertise };

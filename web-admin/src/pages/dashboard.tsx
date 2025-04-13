@@ -25,7 +25,15 @@ import FundingView from '../adminOptions/ViewFunding';
 // import PendingFacultyRequests from '../adminOptions/PendingFacultyRequests';
 
 // import Settings from '../adminOptions/Settings';
-// import Logs from '../adminOptions/Logs';
+import  FacultyQueryForm from '../adminOptions/Forms';
+import FacultyQueryForm2 from '../adminOptions/Forms2';
+import StudentDetailsQuery from '../adminOptions/Forms4';
+import MoreThanXExpertiseFacultyForm  from '../adminOptions/Forms5';
+import StudentExpertiseQuery from '../adminOptions/Forms6';
+import ExpertiseCountByStudentForm from '../adminOptions/Forms7';
+import AverageExpertisePerFacultyForm from '../adminOptions/Forms8';
+import TopExpertiseAmongStudentsForm from '../adminOptions/Forms9';
+import UsersRolePercentageForm  from '../adminOptions/Forms10';
 
 const menuStructure = [
   {
@@ -56,6 +64,10 @@ const menuStructure = [
     label: 'Others',
     children: ['Settings', 'Logs'],
   },
+  {
+    label: 'Forms Query',
+    children: ['Query 1', 'Query 2', 'Query 3', 'Query 4', 'Query 5', 'Query 6', 'Query 7', 'Query 8', 'Query 9', 'Query 10'],
+  }
 ];
 
 const AdminDashboard = () => {
@@ -119,13 +131,32 @@ const AdminDashboard = () => {
         return <PendingUserRequests />;
       // case 'Pending Requests > Faculty Requests':
       //   return <PendingFacultyRequests />;
-  
+      case 'Forms Query > Query 1':
+        return <FacultyQueryForm />;
+      case 'Forms Query > Query 2':
+        return <FacultyQueryForm2 />;
+      case 'Forms Query > Query 3':
+        return <EditFaculty />;
+      case 'Forms Query > Query 4':
+        return <StudentDetailsQuery />;
+      case 'Forms Query > Query 5':
+        return <MoreThanXExpertiseFacultyForm />;
+      case 'Forms Query > Query 6':
+        return <StudentExpertiseQuery />;
+      case 'Forms Query > Query 7':
+        return <ExpertiseCountByStudentForm />;
+      case 'Forms Query > Query 8':
+        return <AverageExpertisePerFacultyForm />;
+      case 'Forms Query > Query 9':
+        return <TopExpertiseAmongStudentsForm />;
+      case 'Forms Query > Query 10':
+        return <UsersRolePercentageForm />;
       // // Others
       // case 'Others > Settings':
       //   return <Settings />;
       // case 'Others > Logs':
-      //   return <Logs />;
-  
+      //   return <FacultyQueryForm />;
+
       default:
         return <div>Welcome to Admin Dashboard</div>;
     }

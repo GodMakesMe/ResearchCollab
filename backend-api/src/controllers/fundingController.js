@@ -27,6 +27,72 @@ const getAllFunding = async (req, res) => {
 };
 
 
+const editFunding = async (req, res) => {
+  const { funding_id } = req.params;
+  const { projectid, source, amount, utilization_status } = req.body;
+
+  try {
+    const result = await pool.query('UPDATE funding SET projectid = $1, source = $2, amount = $3, utilization_status = $4 WHERE funding_id = $5', [projectid, source, amount, utilization_status, funding_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Funding not found');
+    }
+    res.status(200).send('Funding details updated');
+  } catch (err) {
+    console.error('Error updating funding:', err);
+    res.status(500).send('Error updating funding details');
+  }
+};
+
+const partiallyUpdateFunding = async (req, res) => {
+  const { funding_id } = req.params;
+  const { projectid, source, amount, utilization_status} =  req.body;
+  const fieldsToUpdate = [];
+  const values = [];
+  let index = 1;
+  if (projectid) {
+    fieldsToUpdate.push(`projectid = $${index++}`);
+    values.push(projectid);
+  }
+  if (source) {
+    fieldsToUpdate.push(`source = $${index++}`);
+    values.push(source);
+  }
+  if (amount) {
+    fieldsToUpdate.push(`amount = $${index++}`);
+    values.push(amount);
+  }
+  if (utilization_status) {
+    fieldsToUpdate.push(`utilization_status = $${index++}`);
+    values.push(utilization_status);
+  }
+  values.push(funding_id);
+  const query = `UPDATE funding SET ${fieldsToUpdate.join(', ')} WHERE funding_id = $${index}`;
+  try {
+    const result = await pool.query(query, values);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Funding not found');
+    }
+    res.status(200).send('Funding details updated');
+  } catch (err) {
+    console.error('Error partially updating funding:', err);
+    res.status(500).send('Error partially updating funding details');
+  }
+};
+
+const deleteFunding = async (req, res) => {
+  const { funding_id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM funding WHERE funding_id = $1', [funding_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).send('Funding not found');
+    }
+    res.status(200).send('Funding deleted successfully');
+  } catch (err) {
+    console.error('Error deleting funding:', err);
+    res.status(500).send('Error deleting funding details');
+  }
+}
+
 
 const addFunding = async (req, res) => {
   const { projectid, source, amount, utilization_status } = req.body;
@@ -38,4 +104,4 @@ const addFunding = async (req, res) => {
   }
 };
 
-module.exports = { getAllFunding, addFunding };
+module.exports = { getAllFunding, addFunding, editFunding, deleteFunding, partiallyUpdateFunding };
