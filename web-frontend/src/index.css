@@ -1,3 +1,45 @@
+/* Custom styles */
+.hero-gradient {
+  background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+}
+
+.purple-gradient {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+}
+
+.feature-card {
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.project-card {
+  transition: all 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.tag {
+  transition: all 0.2s ease;
+}
+
+.tag:hover {
+  background-color: #8b5cf6;
+  color: white;
+}
+
+.tag.selected {
+  background-color: #8b5cf6;
+  color: white;
+}
+
+/* Base styles */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
