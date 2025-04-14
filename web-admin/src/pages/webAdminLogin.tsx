@@ -130,7 +130,7 @@ const WebAdminLogin = () => {
 
       <hr style={{ margin: '2rem 0' }} />
 
-      <div style={{ textAlign: 'center' }}>
+      <div style={{ textAlign: 'center' , display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         <div ref={googleDivRef}></div>
       </div>
     </div>

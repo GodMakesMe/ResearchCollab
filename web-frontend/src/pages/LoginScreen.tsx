@@ -166,7 +166,7 @@ const LoginPage: React.FC = () => {
 
           <button type="submit" className="submit-btn">Log In</button>
         </form>
-        <div style={{ textAlign: 'center', margin: '1rem', borderRadius: '50px' }}>
+        <div style={{ textAlign: 'center' , display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '20px'}}>
             <div ref={googleDivRef}></div>
         </div>
 
