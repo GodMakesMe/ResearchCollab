@@ -1,4 +1,5 @@
 const pool = require('../db/db');
+const bcrypt = require('bcrypt');
 
 
 const getAllFaculty = async (req, res) => {
@@ -140,12 +141,33 @@ const partialUpdateFaculty = async (req, res) => {
 };
 
 const addFaculty = async (req, res) => {
-  const { userid, department } = req.body;
+  const { name, email, phone, password = '123456789', department } = req.body;
+
+  if (!name || !email || !department) {
+    return res.status(400).json({ message: 'Required fields missing' });
+  }
+
   try {
-    await pool.query('INSERT INTO faculty (userid, department) VALUES ($1, $2)', [userid, department]);
-    res.status(201).send('Faculty list updated');
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Step 1: Insert into users
+    const userResult = await pool.query(
+      'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5) RETURNING user_id',
+      [name, email, phone, 'faculty', hashedPassword]
+    );
+    const user_id = userResult.rows[0].user_id;
+
+    // Step 2: Insert into faculty table
+    await pool.query(
+      'INSERT INTO faculty (user_id, department) VALUES ($1, $2)',
+      [user_id, department]
+    );
+
+    res.status(201).json({ message: 'Faculty added successfully', user_id });
   } catch (err) {
-    res.status(500).send('Error adding faculty details');
+    console.error('Error adding faculty:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

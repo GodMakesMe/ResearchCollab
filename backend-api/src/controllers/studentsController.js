@@ -1,4 +1,7 @@
-const pool = require('../db/db');
+const bcrypt = require('bcrypt');
+require('dotenv').config();
+const pool = require('../db/db'); 
+
 
 const getAllStudents = async (req, res) => {
   try {
@@ -106,15 +109,47 @@ const partialUpdateStudents = async (req, res) => {
 }
 
 
-
 const addStudents = async (req, res) => {
-  const { studentit, userid, enrollment_year, program} = req.body;
+  const { student_id, enrollment_year, program } = req.params;
+  const { name, email, phone, password } = req.body;
+
+  if (!student_id || !enrollment_year || !program || !name || !email) {
+    return res.status(400).send('All fields are required');
+  }
+
+  if (!email.includes('@iiitd.ac.in')) {
+    return res.status(400).send('Invalid institutional email');
+  }
+
   try {
-    await pool.query('INSERT INTO students (studentit, userid, enrollment_year, program) VALUES ($1, $2, $3, $4)', [studentit, userid, enrollment_year, program]);
-    res.status(201).send('Student details updated');
+    // Default password if not provided
+    const userPassword = password || '123456789';
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(userPassword, salt);
+
+    // First, insert the user
+    const userResult = await pool.query(
+      'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5) RETURNING user_id',
+      [name, email, phone || '', 'student', hashedPassword]
+    );
+
+    const userid = userResult.rows[0].user_id;
+
+    // Then insert into the students table
+    await pool.query(
+      'INSERT INTO students (student_id, user_id, enrollment_year, program) VALUES ($1, $2, $3, $4)',
+      [student_id, userid, enrollment_year, program]
+    );
+
+    res.status(201).send('Student details added successfully');
   } catch (err) {
-    res.status(500).send('Error adding students details');
+    console.error(err);
+    res.status(500).send('Error adding student details');
   }
 };
+
+
 
 module.exports = { getAllStudents, getStudents, addStudents, editStudents, deleteStudents, partialUpdateStudents };

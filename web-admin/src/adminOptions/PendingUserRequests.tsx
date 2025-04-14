@@ -245,7 +245,7 @@ const PendingRequests: React.FC = () => {
           }}
           disabled={selectedIds.length === 0}
         >
-          y Selected
+          ✔ Selected
         </button>
         </div>
 

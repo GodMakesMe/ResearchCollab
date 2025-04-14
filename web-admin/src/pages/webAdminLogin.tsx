@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { login } from '../services/authServies'; // Adjust path to match your project structure
+import { googleLogin, login } from '../services/authServies'; // Adjust path to match your project structure
 import { useNavigate } from 'react-router-dom';
 
 // Currently the OAuth error will show as we have not implemented the goodle cloud console due to billing issues which is required to use the google login.
@@ -14,12 +14,12 @@ const WebAdminLogin = () => {
   const navigate = useNavigate();
 
   const handleGoogleResponse = async (response: any) => {
-    console.log('Google login response:', response);
+    // console.log('Google login response:', response);
   
     // 👇 This is where you should extract and send token to your backend
     try {
       const credential = response.credential; // this is a JWT
-      const data = await login(credential); // 🔥 Call your backend with Google token
+      const data = await googleLogin(credential); // 🔥 Call your backend with Google token
       console.log('Google login successful:', data);
   
       if (data.role !== 'admin') {

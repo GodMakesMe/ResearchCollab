@@ -63,7 +63,7 @@ const EditUsers: React.FC = () => {
       await axios.put(`${backend_url}/users/${user.user_id}`, user, {
         headers: { Authorization: `${token}` },
       });
-      alert(`✔️ User ${user.user_id} updated`);
+      alert(`✔ User ${user.user_id} updated`);
     } catch (error) {
       alert(`❌ Error updating user ${user.user_id}`);
       console.error('Error updating user:', error);
@@ -148,7 +148,7 @@ const EditUsers: React.FC = () => {
                 <th style={thStyle} onClick={() => handleSort('email')}>Email {sortBy === 'email' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                 <th style={thStyle} onClick={() => handleSort('role')}>Role {sortBy === 'role' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                 <th style={thStyle} onClick={() => handleSort('phone')}>Phone {sortBy === 'phone' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-                <th style={thStyle}>✔️</th>
+                <th style={thStyle}>✔</th>
                 <th style={thStyle}>🗑️</th>
               </tr>
             </thead>
@@ -192,7 +192,7 @@ const EditUsers: React.FC = () => {
                     />
                   </td>
                   <td style={tdStyle}>
-                    <button onClick={() => handleEditSubmit(user)} style={iconButtonStyle}>✔️</button>
+                    <button onClick={() => handleEditSubmit(user)} style={iconButtonStyle}>✔</button>
                   </td>
                   <td style={tdStyle}>
                     <button onClick={() => handleDelete(user.user_id)} style={iconButtonStyle}>🗑️</button>
@@ -274,6 +274,9 @@ const iconButtonStyle: React.CSSProperties = {
   borderRadius: '6px',
   cursor: 'pointer',
   fontSize: '1rem',
+  alignContent: 'center',
+  display: 'flex',
+  justifyContent: 'center',
 };
 
 export default EditUsers;

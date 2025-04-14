@@ -9,7 +9,13 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); // Make sure to s
 
 // Handle Google Login
 const googleLogin = async (req, res) => {
+  console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
+
   const { token } = req.body;
+  console.error('Google token:', token); // Log the token for debugging
+  if (!token) {
+    return res.status(400).json({ message: 'Token is required' });
+  }
 
   try {
     // Verify the token with Google
@@ -81,7 +87,13 @@ const login = async (req, res) => {
 // Register User same as Add User
 const register = async (req, res) => {
     const { name, email, phone, role, password } = req.body;
+    if (!name || !email, !role) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
     try {
+        if (!password){
+            password = '123456789'; // default password if not provided
+        }
         // Salt here is for security in database.
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -100,7 +112,10 @@ const register = async (req, res) => {
 
 const submitRegistrationRequest = async (req, res) => {
     const { name, email, phone, role, password } = req.body;
-
+    if (!password ) password = '123456789';
+    if (!name || !email || !phone) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
     try {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);

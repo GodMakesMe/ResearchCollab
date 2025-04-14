@@ -63,7 +63,7 @@ const EditFaculty: React.FC = () => {
       await axios.put(`${backend_url}/faculty/${faculty.faculty_id}`, faculty, {
         headers: { Authorization: `${token}` },
       });
-      alert(`✔️ Faculty ${faculty.faculty_id} updated`);
+      alert(`✔ Faculty ${faculty.faculty_id} updated`);
     } catch (error) {
       console.error('Error updating faculty:', error);
     }
@@ -132,7 +132,7 @@ const EditFaculty: React.FC = () => {
                 <th style={thStyle} onClick={() => handleSort('email')}>Email {sortBy === 'email' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                 <th style={thStyle} onClick={() => handleSort('department')}>Department {sortBy === 'department' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                 <th style={thStyle} onClick={() => handleSort('phone')}>Phone {sortBy === 'phone' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-                <th style={thStyle}>✔️</th>
+                <th style={thStyle}>✔</th>
                 <th style={thStyle}>🗑️</th>
               </tr>
             </thead>
@@ -154,7 +154,7 @@ const EditFaculty: React.FC = () => {
                     <input value={faculty.phone} onChange={(e) => handleInputChange(index, 'phone', e.target.value)} style={inputStyle} />
                   </td>
                   <td style={tdStyle}>
-                    <button onClick={() => handleEditSubmit(faculty)} style={iconButtonStyle}>✔️</button>
+                    <button onClick={() => handleEditSubmit(faculty)} style={iconButtonStyle}>✔</button>
                   </td>
                   <td style={tdStyle}>
                     <button onClick={() => handleDelete(faculty.faculty_id)} style={iconButtonStyle}>🗑️</button>

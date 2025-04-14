@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../assets/tiger_head_generated.jpg'; // Adjust the path as necessary
+import logo from '../assets/IIITD_LOGO.jpeg'; // Adjust the path as necessary
 import ViewUsers from '../adminOptions/ViewUsers';
 import ViewFaculty from '../adminOptions/ViewFaculty';
 import ViewProjects from '../adminOptions/ViewProjects';
 
-// import AddUsers from '../adminOptions/AddUsers';
-// import AddFaculty from '../adminOptions/AddFaculty';
+import AddUsers from '../adminOptions/AddUsers';
+import AddFaculty from '../adminOptions/AddFaculty';
 // import AddProjectDetails from '../adminOptions/AddProjectDetails';
 
 import EditUsers from '../adminOptions/EditUsers';
@@ -99,10 +99,10 @@ const AdminDashboard = () => {
         return <ViewProjects />;
   
       // // Add Data
-      // case 'Add Data > Users':
-      //   return <AddUsers />;
-      // case 'Add Data > Faculty':
-      //   return <AddFaculty />;
+      case 'Add Data > Users':
+        return <AddUsers />;
+      case 'Add Data > Faculty':
+        return <AddFaculty />;
       // case 'Add Data > Project Details':
       //   return <AddProjectDetails />;
   
@@ -207,7 +207,7 @@ const AdminDashboard = () => {
             <div>
                 {/* Logo */}
                 <div style={{ marginBottom: '0rem', display: 'flex', justifyContent: 'center' }}>
-                <img src={logo} alt="Logo" style={{ width: 'auto', height: '80px', marginBottom: '0.5rem' }} />
+                <img src={logo} alt="Logo" style={{ width: '200px', height: 'auto', marginBottom: '0.5rem' }} />
                 </div>
 
                 {/* Title */}

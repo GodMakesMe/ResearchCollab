@@ -91,10 +91,12 @@ const getUsers = async (req, res) => {
 const editUser = async (req, res) => {
   const { user_id } = req.params;
   const { name, email, role, phone } = req.body;
-  if (!name || !email || !role || !phone) {
+  if (!name || !email || !role) {
     return res.status(400).send('All fields are required');
   }
-
+  if (phone & phone.length !== 10) {
+    return res.status(400).send('Phone number must be 10 digits long');
+  }
   console.log('Updating user (user_id, name, email, role, phone):', { user_id, name, email, role, phone });
 
   try {
@@ -126,7 +128,7 @@ const deleteUser = async (req, res) => {
 
 const partialUpdateUser = async (req, res) => {
   const { user_id } = req.params;
-  const { name, email, role, phone } = req.body;
+  const { name, email, role, phone, password } = req.body;
   const updates = [];
   const values = [];
   let index = 1;
@@ -145,6 +147,10 @@ const partialUpdateUser = async (req, res) => {
   if (phone) {
     updates.push(`phone = $${index++}`);
     values.push(phone);
+  }
+  if (password) {
+    updates.push(`password = $${index++}`);
+    values.push(password);
   }
   if (updates.length === 0) {
     return res.status(400).send('No fields provided to update');
@@ -186,9 +192,12 @@ const getUserById = async (req, res) => {
 }
 
 const addUser = async (req, res) => {
-  const { name, email } = req.body;
+  const { name, email, role, password } = req.body;
+  if (!name || !email || !role) {
+    return res.status(400).send('All fields are required');
+  }
   try {
-    await pool.query('INSERT INTO users (name, email) VALUES ($1, $2)', [name, email]);
+    await pool.query('INSERT INTO users (name, email, role, password ) VALUES ($1, $2)', [name, email, role, password]);
     res.status(201).send('User added');
   } catch (err) {
     res.status(500).send('Error adding user');

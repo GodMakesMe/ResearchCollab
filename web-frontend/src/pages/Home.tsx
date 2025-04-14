@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
+import { useNavigate } from 'react-router-dom';
 
 const Home: React.FC = () => {
+  // const token = localStorage.getItem('token');
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.log('Token not found, redirecting to login...');
+      navigate('/login');
+    }
+  }, [navigate]);
+  
   return (
     <div className="bg-gray-50 font-sans">
       <Navigation />
