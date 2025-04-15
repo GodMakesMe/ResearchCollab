@@ -16,6 +16,9 @@ interface Project {
   professorId: string;
 }
 
+
+
+
 const Projects: React.FC = () => {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedDomain, setSelectedDomain] = useState<string>('');
@@ -33,6 +36,7 @@ const Projects: React.FC = () => {
     students: 3,
     openOnly: true
   });
+  
 
   const projects: Project[] = [
     {
@@ -122,6 +126,36 @@ const Projects: React.FC = () => {
         : [...prev, skill]
     );
   };
+
+  const [fetchedProjects, setFetchedProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const params = new URLSearchParams({
+          skills: appliedFilters.skills.join(','),
+          domain: appliedFilters.domain,
+          professor: appliedFilters.professor,
+          students: appliedFilters.students.toString(),
+          openOnly: appliedFilters.openOnly.toString(),
+          search: appliedFilters.search,
+          sort: sortBy
+        });
+
+        const response = await fetch(`/projects?${params.toString()}`);
+        const data = await response.json();
+        setFetchedProjects(data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, [appliedFilters, sortBy]);
+
 
   const handleDomainChange = (domain: string) => {
     setSelectedDomain(domain);

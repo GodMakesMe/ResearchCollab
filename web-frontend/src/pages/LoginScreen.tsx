@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css'; // Import the CSS
 import logo from '../assets/Logo_Center.png'; // Adjust the path to your logo
-import { login } from '../services/authServies'
+import { googleLogin, login } from '../services/authServies'
 
 // Extend the Window interface to include the google property
 declare global {
@@ -43,23 +43,23 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleGoogleResponse = async (response: any) => {
-    console.log('Google login response:', response);
+    // console.log('Google login response:', response);
   
     // 👇 This is where you should extract and send token to your backend
     try {
       const credential = response.credential; // this is a JWT
-      const data = await login(credential); // 🔥 Call your backend with Google token
+      const data = await googleLogin(credential); // 🔥 Call your backend with Google token
       console.log('Google login successful:', data);
   
-      if (data.role !== 'admin') {
-        alert('You do not have permission to access this page.');
-        localStorage.removeItem('token');
-        setStatus('error');
-        return;
-      }
+    //   if (data.role !== 'admin') {
+    //     alert('You do not have permission to access this page.');
+    //     localStorage.removeItem('token');
+    //     setStatus('error');
+    //     return;
+    //   }
   
       setStatus('success');
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       console.error('Google login failed:', err);
       setStatus('error');
@@ -166,7 +166,7 @@ const LoginPage: React.FC = () => {
 
           <button type="submit" className="submit-btn">Log In</button>
         </form>
-        <div style={{ textAlign: 'center' , display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '20px'}}>
+        <div style={{ textAlign: 'center' , padding: '1rem' ,display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '20px'}}>
             <div ref={googleDivRef}></div>
         </div>
 
