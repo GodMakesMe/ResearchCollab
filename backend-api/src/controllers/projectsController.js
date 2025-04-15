@@ -30,7 +30,7 @@ const getTopDomains = async (req, res) => {
               significance DESC NULLS LAST -- Higher significance first, handle potential NULLs
           LIMIT 5;
       `;
-      const { rows } = await db.query(query);
+      const { rows } = await pool.query(query);
       // Send back just the names, as the frontend likely uses names for filtering
       res.status(200).json(rows.map(row => row.name));
       // Or send the full objects if needed: res.status(200).json(rows);
@@ -158,7 +158,7 @@ const filterProjectsMultiple = async (req, res) => {
   try {
       // console.log("Executing Query:", baseQuery); // Keep for debugging if needed
       // console.log("With Params:", queryParams);
-      const result = await db.query(baseQuery, queryParams);
+      const result = await pool.query(baseQuery, queryParams);
 
       const projects = result.rows.map(row => ({
           ...row,
