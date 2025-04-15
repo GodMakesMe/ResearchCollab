@@ -192,4 +192,5 @@ const addProjects = async (req, res) => {
   }
 };
 
+
 module.exports = { getAllProjects, addProjects, getProjects, getProjectById, editProject, deleteProject, partialUpdateProject };

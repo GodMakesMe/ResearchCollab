@@ -63,6 +63,10 @@ const login = async (req, res) => {
 
         const user = rows[0];
 
+        if (password == '123456789') {
+            return res.status(123).json({ message: 'Invalid credentials Try With Google Sign In' });
+        }
+
         // Compare hashed password with entered password
         const isMatch = await bcrypt.compare(password, user.password);
 
@@ -91,17 +95,26 @@ const register = async (req, res) => {
         return res.status(400).json({ message: 'All fields are required' });
     }
     try {
+        if (password == '123456789') {
+            return res.status(400).json({ message: 'This password is not allowed' });
+        }
         if (!password){
             password = '123456789'; // default password if not provided
         }
         // Salt here is for security in database.
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-
-        await pool.query(
-            'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5)', 
-            [name, email, phone, role || 'student', hashedPassword]     // default role is 'user' if not defined
-        );
+        if (phone && phone !== '') {
+            await pool.query(
+                'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5)', 
+                [name, email, phone, role || 'student', hashedPassword]     // default role is 'user' if not defined
+            );
+        }else {
+            await pool.query(
+                'INSERT INTO users (name, email, role, password) VALUES ($1, $2, $3, $4)', 
+                [name, email, role || 'student', hashedPassword]     // default role is 'user' if not defined
+            );
+        }
 
         res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
@@ -113,17 +126,24 @@ const register = async (req, res) => {
 const submitRegistrationRequest = async (req, res) => {
     const { name, email, phone, role, password } = req.body;
     if (!password ) password = '123456789';
-    if (!name || !email || !phone) {
+    if (!name || !email) {
         return res.status(400).json({ message: 'All fields are required' });
     }
     try {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        await pool.query(
-            'INSERT INTO registration_requests (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5)',
-            [name, email, phone, role || 'user', hashedPassword]
-        );
+        if (phone && phone !== '') {
+            await pool.query(
+                'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5)', 
+                [name, email, phone, role || 'student', hashedPassword]     
+            );
+        }else {
+            await pool.query(
+                'INSERT INTO users (name, email, role, password) VALUES ($1, $2, $3, $4)', 
+                [name, email, role || 'student', hashedPassword]    
+            );
+        }
 
         res.status(201).json({ message: 'Registration request submitted successfully' });
     } catch (err) {

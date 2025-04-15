@@ -21,8 +21,8 @@ interface Project {
 
 const Projects: React.FC = () => {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [selectedDomain, setSelectedDomain] = useState<string>('');
-  const [selectedProfessor, setSelectedProfessor] = useState<string>('');
+  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
+  const [selectedProfessors, setSelectedProfessors] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [studentsRange, setStudentsRange] = useState(3);
   const [showOpenOnly, setShowOpenOnly] = useState(true);
@@ -30,8 +30,8 @@ const Projects: React.FC = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [appliedFilters, setAppliedFilters] = useState({
     skills: [] as string[],
-    domain: '',
-    professor: '',
+    domains: [] as string[],
+    professors: [] as string[],
     search: '',
     students: 3,
     openOnly: true
@@ -126,6 +126,19 @@ const Projects: React.FC = () => {
         : [...prev, skill]
     );
   };
+  
+  const handleDomainToggle = (domain: string) => {
+    setSelectedDomains(prev =>
+      prev.includes(domain) ? prev.filter(d => d !== domain) : [...prev, domain]
+    );
+  };
+
+  const handleProfessorToggle = (professor: string) => {
+    setSelectedProfessors(prev =>
+      prev.includes(professor) ? prev.filter(p => p !== professor) : [...prev, professor]
+    );
+  };
+
 
   const [fetchedProjects, setFetchedProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,8 +148,8 @@ const Projects: React.FC = () => {
       try {
         const params = new URLSearchParams({
           skills: appliedFilters.skills.join(','),
-          domain: appliedFilters.domain,
-          professor: appliedFilters.professor,
+          domain: appliedFilters.domains.join(','),
+          professor: appliedFilters.professors.join(','),
           students: appliedFilters.students.toString(),
           openOnly: appliedFilters.openOnly.toString(),
           search: appliedFilters.search,
@@ -157,13 +170,13 @@ const Projects: React.FC = () => {
   }, [appliedFilters, sortBy]);
 
 
-  const handleDomainChange = (domain: string) => {
-    setSelectedDomain(domain);
-  };
+  // const handleDomainChange = (domain: string) => {
+  //   setSelectedDomain(domain);
+  // };
 
-  const handleProfessorChange = (professor: string) => {
-    setSelectedProfessor(prev => prev === professor ? '' : professor);
-  };
+  // const handleProfessorChange = (professor: string) => {
+  //   setSelectedProfessor(prev => prev === professor ? '' : professor);
+  // };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -181,69 +194,77 @@ const Projects: React.FC = () => {
     setSortBy(e.target.value);
   };
 
-  const handleClearFilters = () => {
-    setSelectedSkills([]);
-    setSelectedDomain('');
-    setSelectedProfessor('');
-    setSearchQuery('');
-    setStudentsRange(3);
-    setShowOpenOnly(true);
-    setActiveFilters([]);
-  };
-
-  const removeFilter = (filter: string) => {
-    if (selectedSkills.includes(filter)) {
-      setSelectedSkills(prev => prev.filter(s => s !== filter));
-    } else if (selectedDomain === filter) {
-      setSelectedDomain('');
-    } else if (selectedProfessor === filter) {
-      setSelectedProfessor('');
-    }
-  };
-
-  useEffect(() => {
-    const filters: string[] = [];
-    if (selectedDomain) filters.push(selectedDomain);
-    if (selectedProfessor) filters.push(selectedProfessor);
-    if (selectedSkills.length > 0) filters.push(...selectedSkills);
-    if (showOpenOnly) filters.push('Open Positions');
-    setActiveFilters(filters);
-  }, [selectedDomain, selectedProfessor, selectedSkills, showOpenOnly]);
-
   const handleApplyFilters = () => {
     setAppliedFilters({
       skills: selectedSkills,
-      domain: selectedDomain,
-      professor: selectedProfessor,
+      domains: selectedDomains,
+      professors: selectedProfessors,
       search: searchQuery,
       students: studentsRange,
       openOnly: showOpenOnly
     });
   };
+  
 
-  const filteredProjects = projects
-    .filter(project => {
-      const matchesSearch = project.title.toLowerCase().includes(appliedFilters.search.toLowerCase()) ||
-                          project.description.toLowerCase().includes(appliedFilters.search.toLowerCase());
-      const matchesDomain = !appliedFilters.domain || project.domain === appliedFilters.domain;
-      const matchesProfessor = !appliedFilters.professor || project.professor === appliedFilters.professor;
-      const matchesSkills = appliedFilters.skills.length === 0 || 
-                          appliedFilters.skills.some(skill => project.skills.includes(skill));
-      const matchesStudents = project.studentsNeeded <= appliedFilters.students;
-      const matchesAvailability = !appliedFilters.openOnly || project.availability === 'open';
-      
-      return matchesSearch && matchesDomain && matchesProfessor && matchesSkills && matchesStudents && matchesAvailability;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'newest':
-          return new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime();
-        case 'spots':
-          return b.spotsLeft - a.spotsLeft;
-        default:
-          return 0;
-      }
-    });
+  const removeFilter = (filter: string) => {
+    if (selectedSkills.includes(filter)) {
+      setSelectedSkills(prev => prev.filter(s => s !== filter));
+    } else if (selectedDomains.includes(filter)) {
+      setSelectedDomains(prev => prev.filter(d => d !== filter));
+    } else if (selectedProfessors.includes(filter)) {
+      setSelectedProfessors(prev => prev.filter(p => p !== filter));
+    }
+  };
+  
+
+  // useEffect(() => {
+  //   const filters: string[] = [];
+  //   if (selectedDomain) filters.push(selectedDomain);
+  //   if (selectedProfessor) filters.push(selectedProfessor);
+  //   if (selectedSkills.length > 0) filters.push(...selectedSkills);
+  //   if (showOpenOnly) filters.push('Open Positions');
+  //   setActiveFilters(filters);
+  // }, [selectedDomain, selectedProfessor, selectedSkills, showOpenOnly]);
+
+  useEffect(() => {
+    const filters: string[] = [
+      ...selectedDomains,
+      ...selectedProfessors,
+      ...selectedSkills,
+    ];
+    if (showOpenOnly) filters.push('Open Positions');
+    setActiveFilters(filters);
+  }, [selectedDomains, selectedProfessors, selectedSkills, showOpenOnly]);
+  
+  const handleClearFilters = () => {
+    setSelectedSkills([]);
+    setSelectedDomains([]);
+    setSelectedProfessors([]);
+    setSearchQuery('');
+    setStudentsRange(3);
+    setShowOpenOnly(true);
+  };
+  
+  
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = project.title.toLowerCase().includes(appliedFilters.search.toLowerCase()) ||
+      project.description.toLowerCase().includes(appliedFilters.search.toLowerCase());
+  
+    const matchesDomains = appliedFilters.domains.length === 0 ||
+      appliedFilters.domains.includes(project.domain);
+  
+    const matchesProfessors = appliedFilters.professors.length === 0 ||
+      appliedFilters.professors.includes(project.professor);
+  
+    const matchesSkills = appliedFilters.skills.length === 0 ||
+      appliedFilters.skills.some(skill => project.skills.includes(skill));
+  
+    const matchesStudents = project.studentsNeeded <= appliedFilters.students;
+    const matchesAvailability = !appliedFilters.openOnly || project.availability === 'open';
+  
+    return matchesSearch && matchesDomains && matchesProfessors && matchesSkills && matchesStudents && matchesAvailability;
+  });
+  
 
   return (
     <div className="bg-gray-50 font-sans">
@@ -300,22 +321,23 @@ const Projects: React.FC = () => {
                 <div className="mb-6">
                   <h4 className="text-gray-800 font-medium mb-3">Research Domain</h4>
                   <div className="space-y-2">
-                    {['Computer Science', 'Biology', 'Physics', 'Chemistry', 'Psychology', 'Engineering'].map(domain => (
+                    {['computer-science', 'biology', 'physics', 'chemistry', 'psychology', 'engineering'].map(domain => (
                       <div key={domain} className="flex items-center">
                         <input
                           type="checkbox"
-                          id={`domain-${domain.toLowerCase()}`}
-                          className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                          checked={selectedDomain === domain.toLowerCase()}
-                          onChange={() => handleDomainChange(domain.toLowerCase())}
+                          id={`domain-${domain}`}
+                          checked={selectedDomains.includes(domain)}
+                          onChange={() => handleDomainToggle(domain)}
+                          className="mr-2"
                         />
-                        <label htmlFor={`domain-${domain.toLowerCase()}`} className="ml-2 text-gray-700">
-                          {domain}
+                        <label htmlFor={`domain-${domain}`} className="text-gray-700 capitalize">
+                          {domain.replace('-', ' ')}
                         </label>
                       </div>
                     ))}
                   </div>
                 </div>
+
 
                 {/* Professor */}
                 <div className="mb-6">
@@ -329,8 +351,8 @@ const Projects: React.FC = () => {
                           type="checkbox"
                           id={`professor-${professor.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                           className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                          checked={selectedProfessor === professor}
-                          onChange={() => handleProfessorChange(professor)}
+                          checked={selectedProfessors.includes(professor)}
+                          onChange={() => handleProfessorToggle(professor)}
                         />
                         <label 
                           htmlFor={`professor-${professor.toLowerCase().replace(/[^a-z0-9]/g, '-')}`} 
