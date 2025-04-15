@@ -91,29 +91,49 @@ const getUsers = async (req, res) => {
 const editUser = async (req, res) => {
   const { user_id } = req.params;
   const { name, email, role, phone } = req.body;
+
   if (!name || !email || !role) {
     return res.status(400).send('All fields are required');
   }
-  if (phone & phone.length !== 10) {
+
+  if (phone && phone.length !== 10) {
     return res.status(400).send('Phone number must be 10 digits long');
   }
-  console.log('Updating user (user_id, name, email, role, phone):', { user_id, name, email, role, phone });
+
+  console.log('Updating user (user_id, name, email, role, phone):', {
+    user_id,
+    name,
+    email,
+    role,
+    phone,
+  });
 
   try {
-    const phoneText = phone && phone !== '' ? ', phone = ' + phone : '';
-    const result = await pool.query(
-      'UPDATE users SET name = $1, email = $2, role = $3 $4 WHERE user_id = $5',
-      [name, email, role, phoneText, user_id]
-    );
+    let query = 'UPDATE users SET name = $1, email = $2, role = $3';
+    const values = [name, email, role];
+    let paramIndex = 4;
+
+    if (phone && phone.trim() !== '') {
+      query += `, phone = $${paramIndex}`;
+      values.push(phone);
+      paramIndex++;
+    }
+
+    query += ` WHERE user_id = $${paramIndex}`;
+    values.push(user_id);
+
+    const result = await pool.query(query, values);
+
     if (result.rowCount === 0) {
       return res.status(404).send('User not found');
     }
+
     res.status(200).send('User updated successfully');
   } catch (err) {
     console.error('Error updating user:', err);
     res.status(500).send('Error updating user');
   }
-}
+};
 
 const deleteUser = async (req, res) => {
   const { user_id } = req.params;

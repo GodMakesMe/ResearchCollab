@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import Navigation from "../components/Navigation";  // Import Navigation component
+import Footer from "../components/Footer";          // Import Footer component
 
 const DashboardScreen: React.FC = () => {
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
@@ -15,41 +17,8 @@ const DashboardScreen: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Navigation */}
-      <nav className="bg-white shadow-md">
-        <div className="container mx-auto px-6 py-3 flex justify-between items-center">
-          <div className="flex items-center">
-            <span className="text-2xl font-bold text-purple-800">
-              Research<span className="text-purple-500">Collab</span>
-            </span>
-          </div>
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className={`${isActive('/')} font-medium hover:text-purple-600`}>
-              Home
-            </Link>
-            <Link to="/projects" className={`${isActive('/projects')} font-medium hover:text-purple-600`}>
-              Projects
-            </Link>
-            <Link to="/dashboard" className={`${isActive('/dashboard')} font-medium hover:text-purple-600`}>
-              Dashboard
-            </Link>
-            <Link to="/teams" className={`${isActive('/teams')} font-medium hover:text-purple-600`}>
-              Teams
-            </Link>
-            <Link to="/resources" className={`${isActive('/resources')} font-medium hover:text-purple-600`}>
-              Resources
-            </Link>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link to="#" className="text-gray-600 hover:text-purple-600">
-              <i className="fas fa-bell"></i>
-            </Link>
-            <Link to="/profile" className={`bg-purple-100 p-2 rounded-full hover:ring-2 ring-purple-300 transition ${isActive('/profile')}`}>
-              <span className="text-purple-800 font-medium">JP</span>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      {/* Navigation Component */}
+      <Navigation />
 
       {/* Dashboard Content */}
       <div className="flex-grow px-6 py-4">
@@ -58,11 +27,7 @@ const DashboardScreen: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {[
-            { title: "Total Projects", value: 5 },
-            { title: "Active Projects", value: 3 },
-            { title: "Total Credits", value: 42 },
-          ].map((stat, idx) => (
+          {[{ title: "Total Projects", value: 5 }, { title: "Active Projects", value: 3 }, { title: "Total Credits", value: 42 }].map((stat, idx) => (
             <div key={idx} className="bg-white p-6 rounded-lg shadow-md">
               <p className="text-gray-600">{stat.title}</p>
               <p className="text-2xl font-bold text-purple-700">{stat.value}</p>
@@ -97,10 +62,7 @@ const DashboardScreen: React.FC = () => {
               ))}
             </div>
             <div className="mt-4 relative h-4 bg-purple-100 rounded-full">
-              <div
-                className="h-full bg-purple-600 rounded-full"
-                style={{ width: `${proj.progress}%` }}
-              ></div>
+              <div className="h-full bg-purple-600 rounded-full" style={{ width: `${proj.progress}%` }}></div>
               <span className="absolute right-2 top-[-6px] text-xs text-purple-800 font-semibold">{proj.progress}%</span>
             </div>
           </div>
@@ -119,11 +81,7 @@ const DashboardScreen: React.FC = () => {
           completed: "Feb 28, 2025",
           tags: ["Quantum", "Physics"],
         }].map((proj) => (
-          <div
-            key={proj.title}
-            className="bg-white p-6 mb-4 rounded-lg shadow-md cursor-pointer"
-            onClick={() => toggleProject(proj.title)}
-          >
+          <div key={proj.title} className="bg-white p-6 mb-4 rounded-lg shadow-md cursor-pointer" onClick={() => toggleProject(proj.title)}>
             <div className="text-lg font-semibold text-gray-800">{proj.title}</div>
             {expandedProject === proj.title && (
               <>
@@ -142,62 +100,8 @@ const DashboardScreen: React.FC = () => {
         ))}
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-12">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-xl font-bold mb-4">
-                Research<span className="text-purple-400">Collab</span>
-              </h3>
-              <p className="text-gray-400">
-                Connecting researchers, professors, and students for collaborative research projects.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                <li><Link to="/" className="text-gray-400 hover:text-white">Home</Link></li>
-                <li><Link to="/projects" className="text-gray-400 hover:text-white">Projects</Link></li>
-                <li><Link to="/dashboard" className="text-gray-400 hover:text-white">Dashboard</Link></li>
-                <li><Link to="/resources" className="text-gray-400 hover:text-white">Resources</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2">
-                <li><Link to="#" className="text-gray-400 hover:text-white">Help Center</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">Documentation</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">API</Link></li>
-                <li><Link to="#" className="text-gray-400 hover:text-white">Contact Support</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Connect With Us</h4>
-              <div className="flex space-x-4 mb-4">
-                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-twitter"></i></a>
-                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-linkedin"></i></a>
-                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-github"></i></a>
-                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-instagram"></i></a>
-              </div>
-              <p className="text-gray-400">Subscribe to our newsletter</p>
-              <div className="flex mt-2">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="px-4 py-2 rounded-l-lg w-full text-gray-800"
-                />
-                <button className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-r-lg">
-                  <i className="fas fa-paper-plane"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>© 2025 Research Collab. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer Component */}
+      <Footer />
     </div>
   );
 };
