@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 
@@ -16,9 +17,6 @@ interface Project {
   professorId: string;
 }
 
-
-
-
 const Projects: React.FC = () => {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedDomain, setSelectedDomain] = useState<string>('');
@@ -34,10 +32,10 @@ const Projects: React.FC = () => {
     professor: '',
     search: '',
     students: 3,
-    openOnly: true
+    openOnly: true,
   });
-  
 
+  // Example project array (this may be replaced with data from an API)
   const projects: Project[] = [
     {
       id: 1,
@@ -50,7 +48,7 @@ const Projects: React.FC = () => {
       studentsNeeded: 3,
       spotsLeft: 2,
       postedDate: '2 days ago',
-      availability: 'open'
+      availability: 'open',
     },
     {
       id: 2,
@@ -63,7 +61,7 @@ const Projects: React.FC = () => {
       studentsNeeded: 4,
       spotsLeft: 1,
       postedDate: '1 week ago',
-      availability: 'open'
+      availability: 'open',
     },
     {
       id: 3,
@@ -76,7 +74,7 @@ const Projects: React.FC = () => {
       studentsNeeded: 2,
       spotsLeft: 0,
       postedDate: '3 weeks ago',
-      availability: 'filled'
+      availability: 'filled',
     },
     {
       id: 4,
@@ -89,7 +87,7 @@ const Projects: React.FC = () => {
       studentsNeeded: 5,
       spotsLeft: 3,
       postedDate: '5 days ago',
-      availability: 'open'
+      availability: 'open',
     },
     {
       id: 5,
@@ -102,7 +100,7 @@ const Projects: React.FC = () => {
       studentsNeeded: 3,
       spotsLeft: 2,
       postedDate: '4 days ago',
-      availability: 'open'
+      availability: 'open',
     },
     {
       id: 6,
@@ -115,18 +113,18 @@ const Projects: React.FC = () => {
       studentsNeeded: 4,
       spotsLeft: 1,
       postedDate: '1 day ago',
-      availability: 'open'
-    }
+      availability: 'open',
+    },
   ];
 
+  // Toggle skill selection
   const handleSkillToggle = (skill: string) => {
     setSelectedSkills(prev =>
-      prev.includes(skill)
-        ? prev.filter(s => s !== skill)
-        : [...prev, skill]
+      prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
     );
   };
 
+  // Simulated data fetching for projects (this can be replaced with real API calls)
   const [fetchedProjects, setFetchedProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -140,7 +138,7 @@ const Projects: React.FC = () => {
           students: appliedFilters.students.toString(),
           openOnly: appliedFilters.openOnly.toString(),
           search: appliedFilters.search,
-          sort: sortBy
+          sort: sortBy,
         });
 
         const response = await fetch(`/projects?${params.toString()}`);
@@ -156,13 +154,12 @@ const Projects: React.FC = () => {
     fetchProjects();
   }, [appliedFilters, sortBy]);
 
-
   const handleDomainChange = (domain: string) => {
     setSelectedDomain(domain);
   };
 
   const handleProfessorChange = (professor: string) => {
-    setSelectedProfessor(prev => prev === professor ? '' : professor);
+    setSelectedProfessor(prev => (prev === professor ? '' : professor));
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,21 +214,24 @@ const Projects: React.FC = () => {
       professor: selectedProfessor,
       search: searchQuery,
       students: studentsRange,
-      openOnly: showOpenOnly
+      openOnly: showOpenOnly,
     });
   };
 
+  // Here, we filter our local projects data based on applied filters.
   const filteredProjects = projects
     .filter(project => {
-      const matchesSearch = project.title.toLowerCase().includes(appliedFilters.search.toLowerCase()) ||
-                          project.description.toLowerCase().includes(appliedFilters.search.toLowerCase());
+      const matchesSearch =
+        project.title.toLowerCase().includes(appliedFilters.search.toLowerCase()) ||
+        project.description.toLowerCase().includes(appliedFilters.search.toLowerCase());
       const matchesDomain = !appliedFilters.domain || project.domain === appliedFilters.domain;
       const matchesProfessor = !appliedFilters.professor || project.professor === appliedFilters.professor;
-      const matchesSkills = appliedFilters.skills.length === 0 || 
-                          appliedFilters.skills.some(skill => project.skills.includes(skill));
+      const matchesSkills =
+        appliedFilters.skills.length === 0 ||
+        appliedFilters.skills.some(skill => project.skills.includes(skill));
       const matchesStudents = project.studentsNeeded <= appliedFilters.students;
       const matchesAvailability = !appliedFilters.openOnly || project.availability === 'open';
-      
+
       return matchesSearch && matchesDomain && matchesProfessor && matchesSkills && matchesStudents && matchesAvailability;
     })
     .sort((a, b) => {
@@ -268,19 +268,14 @@ const Projects: React.FC = () => {
               <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-bold text-gray-800">Filters</h3>
-                  <button
-                    className="text-purple-600 hover:text-purple-800 text-sm font-medium"
-                    onClick={handleClearFilters}
-                  >
+                  <button className="text-purple-600 hover:text-purple-800 text-sm font-medium" onClick={handleClearFilters}>
                     Clear All
                   </button>
                 </div>
 
                 {/* Search */}
                 <div className="mb-6">
-                  <label htmlFor="search" className="block text-gray-700 font-medium mb-2">
-                    Search
-                  </label>
+                  <label htmlFor="search" className="block text-gray-700 font-medium mb-2">Search</label>
                   <div className="relative">
                     <input
                       type="text"
@@ -321,25 +316,26 @@ const Projects: React.FC = () => {
                 <div className="mb-6">
                   <h4 className="text-gray-800 font-medium mb-3">Professor</h4>
                   <div className="space-y-2">
-                    {projects.map(project => project.professor).filter((professor, index, self) => 
-                      self.indexOf(professor) === index
-                    ).map(professor => (
-                      <div key={professor} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id={`professor-${professor.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
-                          className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                          checked={selectedProfessor === professor}
-                          onChange={() => handleProfessorChange(professor)}
-                        />
-                        <label 
-                          htmlFor={`professor-${professor.toLowerCase().replace(/[^a-z0-9]/g, '-')}`} 
-                          className="ml-2 text-gray-700"
-                        >
-                          {professor}
-                        </label>
-                      </div>
-                    ))}
+                    {projects
+                      .map(project => project.professor)
+                      .filter((professor, index, self) => self.indexOf(professor) === index)
+                      .map(professor => (
+                        <div key={professor} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`professor-${professor.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                            className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                            checked={selectedProfessor === professor}
+                            onChange={() => handleProfessorChange(professor)}
+                          />
+                          <label
+                            htmlFor={`professor-${professor.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                            className="ml-2 text-gray-700"
+                          >
+                            {professor}
+                          </label>
+                        </div>
+                      ))}
                   </div>
                 </div>
 
@@ -442,15 +438,9 @@ const Projects: React.FC = () => {
                     <h4 className="text-sm text-gray-600 mb-2">Active Filters:</h4>
                     <div className="flex flex-wrap gap-2">
                       {activeFilters.map(filter => (
-                        <span
-                          key={filter}
-                          className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm flex items-center"
-                        >
+                        <span key={filter} className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm flex items-center">
                           {filter}
-                          <button
-                            className="ml-2 text-purple-800 hover:text-purple-600 focus:outline-none"
-                            onClick={() => removeFilter(filter)}
-                          >
+                          <button className="ml-2 text-purple-800 hover:text-purple-600 focus:outline-none" onClick={() => removeFilter(filter)}>
                             <i className="fas fa-times"></i>
                           </button>
                         </span>
@@ -463,19 +453,16 @@ const Projects: React.FC = () => {
               {/* Results Grid */}
               <div className="grid grid-cols-1 gap-6">
                 {filteredProjects.map(project => (
-                  <div
-                    key={project.id}
-                    className="bg-white rounded-lg shadow-md overflow-hidden project-card"
-                  >
+                  <div key={project.id} className="bg-white rounded-lg shadow-md overflow-hidden project-card">
                     <div className="flex flex-row">
                       <div className="bg-purple-100 p-4 flex justify-between items-center w-full">
                         <span className={`${
                           project.domain === 'computer-science' ? 'bg-purple-600' :
-                          project.domain === 'engineering' ? 'bg-blue-600' :
-                          project.domain === 'biology' ? 'bg-green-600' :
-                          project.domain === 'physics' ? 'bg-yellow-600' :
-                          project.domain === 'psychology' ? 'bg-red-600' :
-                          'bg-gray-600'
+                            project.domain === 'engineering' ? 'bg-blue-600' :
+                              project.domain === 'biology' ? 'bg-green-600' :
+                                project.domain === 'physics' ? 'bg-yellow-600' :
+                                  project.domain === 'psychology' ? 'bg-red-600' :
+                                    'bg-gray-600'
                         } text-white text-xs font-semibold px-3 py-1 rounded-full`}>
                           {project.domain.replace('-', ' ')}
                         </span>
@@ -487,16 +474,17 @@ const Projects: React.FC = () => {
                       <p className="text-gray-600 mb-4">{project.description}</p>
                       <div className="flex flex-wrap gap-2 mb-4">
                         {project.skills.map(skill => (
-                          <span
-                            key={skill}
-                            className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs"
-                          >
+                          <span key={skill} className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
                             {skill}
                           </span>
                         ))}
                       </div>
                       <div className="flex items-center mb-4">
-                        <img src={`/api/placeholder/36/36?name=${project.professorId}`} alt={project.professor} className="rounded-full" />
+                        <img
+                          src={`/api/placeholder/36/36?name=${project.professorId}`}
+                          alt={project.professor}
+                          className="rounded-full"
+                        />
                         <span className="ml-2 text-gray-700">{project.professor}</span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -504,21 +492,20 @@ const Projects: React.FC = () => {
                           <span className="text-sm text-gray-500 mr-2">
                             {project.studentsNeeded} Students needed
                           </span>
-                          <span
-                            className={`${
-                              project.availability === 'open'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            } text-xs px-2 py-1 rounded-full`}
-                          >
+                          <span className={`${
+                            project.availability === 'open'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          } text-xs px-2 py-1 rounded-full`}>
                             {project.availability === 'open'
                               ? `${project.spotsLeft} Spots left`
                               : 'Filled'}
                           </span>
                         </div>
-                        <a href="#" className="text-purple-600 hover:text-purple-800">
+                        {/* Link to project details page using the project id */}
+                        <Link to={`/project/${project.id}`} className="text-purple-600 hover:text-purple-800">
                           Details →
-                        </a>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -534,4 +521,4 @@ const Projects: React.FC = () => {
   );
 };
 
-export default Projects; 
+export default Projects;
