@@ -116,7 +116,7 @@ const Projects: React.FC = () => {
             console.error('Failed to fetch domains:', results[0].reason);
         }
         setLoadingDomains(false);
-
+        // console.log("Process Professor Results: ", results[1]); // Debugging line
         // Process Professor Results
         if (results[1].status === 'fulfilled') {
             const response = results[1].value;
@@ -242,7 +242,7 @@ const Projects: React.FC = () => {
         filters.push({ type: 'availability', value: 'Open' });
     }
     setActiveFiltersForDisplay(filters);
-  }, [selectedDomains, selectedProfessors, selectedSkills, showOpenOnly == true ? 'open' : 'closed']);
+  }, [selectedDomains, selectedProfessors, selectedSkills, showOpenOnly]);
 
 
   // --- Filter Handlers (remain the same) ---

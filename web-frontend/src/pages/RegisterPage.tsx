@@ -2,18 +2,49 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './RegisterPage.css'; // Ensure this file is created with styling similar to your LoginPage.css
 import logo from '../assets/Logo_Center.png'; // Adjust the path to your logo
+import { googleLogin, login } from '../services/authServies'
+
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const [studentName, setStudentName] = useState('');
+  const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [number, setNumber] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isNumberValid, setIsNumberValid] = useState(true);
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong'>('weak');
+  const [forgotPasswordModal, setForgotPasswordModal] = useState(false);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStudentName(e.target.value);
   };
+
+  const handleGoogleResponse = async (response: any) => {
+      // console.log('Google login response:', response);
+    
+      // 👇 This is where you should extract and send token to your backend
+      try {
+        const credential = response.credential; // this is a JWT
+        const data = await googleLogin(credential); // 🔥 Call your backend with Google token
+        console.log('Google login successful:', data);
+    
+      //   if (data.role !== 'admin') {
+      //     alert('You do not have permission to access this page.');
+      //     localStorage.removeItem('token');
+      //     setStatus('error');
+      //     return;
+      //   }
+    
+        setStatus('success');
+        navigate('/');
+      } catch (err) {
+        console.error('Google login failed:', err);
+        setStatus('error');
+      }
+    };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -28,6 +59,14 @@ const RegisterPage: React.FC = () => {
       setNumber(value);
       setIsNumberValid(value !== '');
     }
+  };
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const handleForgotPassword = () => setForgotPasswordModal(true);
+  const closeForgotPasswordModal = () => setForgotPasswordModal(false);
+
+  const handleResetPassword = () => {
+    alert(`Password reset link sent to ${email}`);
+    closeForgotPasswordModal();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -58,6 +97,17 @@ const RegisterPage: React.FC = () => {
     // Optionally navigate to login page or any other page after successful submission.
     // navigate('/login');
   };
+
+   const evaluatePasswordStrength = (password: string) => {
+     if (password.length < 6) setPasswordStrength('weak');
+     else if (password.length < 10) setPasswordStrength('medium');
+     else setPasswordStrength('strong');
+   };
+ 
+   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+     setPassword(e.target.value);
+     evaluatePasswordStrength(e.target.value);
+   };
 
   return (
     <div className="login-container">
@@ -101,7 +151,31 @@ const RegisterPage: React.FC = () => {
           />
           {!isNumberValid && <span className="error">Invalid phone number</span>}
 
+          <label>Password</label>
+          <div className="password-field">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={handlePasswordChange}
+              placeholder="Enter your password"
+              required
+            />
+            <span onClick={togglePasswordVisibility} className="toggle-password">
+              {showPassword ? 'Hide' : 'Show'}
+            </span>
+          </div>
+
+          <div className={`strength-bar ${passwordStrength}`}></div>
+
+          <div className="form-options">
+            <label>
+              <input type="checkbox" /> Remember me
+            </label>
+          </div>
+
+          
           <button type="submit" className="submit-btn">Register</button>
+
         </form>
 
         <p className="signup-text">

@@ -171,7 +171,7 @@ const LoginPage: React.FC = () => {
         </div>
 
         <p className="signup-text">
-          Don't have an account? <a href="#">Sign up</a>
+          Don't have an account? <a href="/register">Sign up</a>
         </p>
       </div>
 
