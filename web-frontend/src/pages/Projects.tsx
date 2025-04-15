@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navigation from '../components/Navigation'; // Adjust path if needed
 import Footer from '../components/Footer'; // Adjust path if needed
-
+import {backend_url} from '../utils/constants'; // Adjust path if needed
 // Interface remains the same
 interface Project {
   id: number;
@@ -82,6 +82,7 @@ const Projects: React.FC = () => {
 
         // Prepare Auth Header (if needed)
         const token = localStorage.getItem('token'); // Example
+        console.log("Token:", token); // Debugging line
         const authHeaders: HeadersInit = { 'Content-Type': 'application/json' };
         if (token) {
             authHeaders['Authorization'] = `${token}`;
@@ -92,11 +93,11 @@ const Projects: React.FC = () => {
         // Use Promise.allSettled to fetch concurrently and handle individual failures
         const results = await Promise.allSettled([
             // Fetch Top Domains
-            fetch('/api/projects/top-domains', { headers: authHeaders }), // Requires Auth
+            fetch(backend_url + '/projects/top-domains', { headers: authHeaders }), // Requires Auth
             // Fetch All Professors
-            fetch('/faculty', { headers: authHeaders }), // Requires Auth (mounted at /faculty in app.js)
+            fetch(backend_url + '/faculty', { headers: authHeaders }), // Requires Auth (mounted at /faculty in app.js)
              // Fetch All Skills (Expertise)
-            fetch('/expertise', { headers: noAuthHeaders }) // No Auth needed (mounted at /expertise in app.js)
+            fetch(backend_url + '/expertise', { headers: noAuthHeaders }) // No Auth needed (mounted at /expertise in app.js)
         ]);
 
         // Process Domain Results
@@ -184,7 +185,7 @@ const Projects: React.FC = () => {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch(`/api/projects/filter?${params.toString()}`, { headers });
+        const response = await fetch(backend_url + `/projects/filter?${params.toString()}`, { headers });
 
         if (!response.ok) {
             let errorData; try { errorData = await response.json(); } catch(e) { errorData = { message: response.statusText }; }
