@@ -13,7 +13,7 @@ import EditUsers from '../adminOptions/EditUsers';
 import EditFaculty from '../adminOptions/EditFaculty';
 import EditProjects from '../adminOptions/EditProjects';
 
-// import AnalyticsOverview from '../adminOptions/AnalyticsOverview';
+import AnalyticsOverview from '../adminOptions/AnalyticsOverview';
 // import AnalyticsTrends from '../adminOptions/AnalyticsTrends';
 
 // import FundingGrants from '../adminOptions/ViewFunding';
@@ -97,7 +97,7 @@ const AdminDashboard = () => {
         return <ViewFaculty />;
       case 'View Data > Projects':
         return <ViewProjects />;
-  
+
       // // Add Data
       case 'Add Data > Users':
         return <AddUsers />;
@@ -105,7 +105,7 @@ const AdminDashboard = () => {
         return <AddFaculty />;
       // case 'Add Data > Project Details':
       //   return <AddProjectDetails />;
-  
+
       // // Edit Data
       case 'Edit Data > Users':
         return <EditUsers />;
@@ -113,19 +113,19 @@ const AdminDashboard = () => {
         return <EditFaculty />;
       case 'Edit Data > Projects':
         return <EditProjects />;
-  
-      // // Analytics Page
-      // case 'Analytics Page > Overview':
-      //   return <AnalyticsOverview />;
+
+      // Analytics Page
+      case 'Analytics Page > Overview':
+        return <AnalyticsOverview />;
       // case 'Analytics Page > Trends':
       //   return <AnalyticsTrends />;
-  
+
       // // Funding
       case 'Funding > Grants':
         return <FundingView />;
       // case 'Funding > Donations':
       //   return <FundingDonations />;
-  
+
       // Pending Requests
       case 'Pending Requests > User Requests':
         return <PendingUserRequests />;
@@ -178,7 +178,7 @@ const AdminDashboard = () => {
   }, [navigate]);
 
   return (
-    
+
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       {/* Top Bar */}
       {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#007bff', color: 'white', padding: '1rem' }}>
@@ -193,16 +193,16 @@ const AdminDashboard = () => {
       </div> */}
 
       {/* Body */}
-      
+
         <div style={{ display: 'flex', flex: 1 }}>
-            <div style={{ 
-            width: '250px', 
-            padding: '1rem', 
-            paddingTop: '2rem', 
-            borderRight: 'none', 
-            display: 'flex', 
-            flexDirection: 'column', 
-            justifyContent: 'space-between' 
+            <div style={{
+            width: '250px',
+            padding: '1rem',
+            paddingTop: '2rem',
+            borderRight: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
             }}>
             <div>
                 {/* Logo */}
@@ -289,7 +289,7 @@ const AdminDashboard = () => {
             </div>
         </div>
 
-        
+
         {/* Dashboard Area */}
         <div style={{ flex: 1, padding: '2rem', overflowY: 'auto', borderTopLeftRadius: '60px', borderTopRightRadius: '20px', backgroundColor: '#f8f9fa' }}>
         <div style={{ padding: '1.5rem', border: '1px solid #ccc', borderRadius: '10px' }}>
