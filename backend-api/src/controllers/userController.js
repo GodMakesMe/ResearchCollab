@@ -110,6 +110,7 @@ const editUser = async (req, res) => {
     }
     res.status(200).send('User updated successfully');
   } catch (err) {
+    console.error('Error updating user:', err);
     res.status(500).send('Error updating user');
   }
 }
