@@ -61,6 +61,10 @@ const filterProjectsMultiple = async (req, res) => {
   let queryParams = [];
   let paramIndex = 1;
 
+  console.log("--- Backend Filter Request ---");
+  console.log("Received openOnly query param:", req.query.openOnly);
+  console.log("Parsed showOpenOnly boolean:", showOpenOnly);
+
   // --- Base query updated ---
   let baseQuery = `
       SELECT
@@ -73,7 +77,7 @@ const filterProjectsMultiple = async (req, res) => {
           f.faculty_id AS "professorId",
           rp.students_needed AS "studentsNeeded",
           rp.availability,
-          CASE WHEN rp.availability = 'open' THEN rp.students_needed ELSE 0 END AS "spotsLeft",
+          CASE WHEN rp.availability = 'Open' THEN rp.students_needed ELSE 0 END AS "spotsLeft",
           rp.start_date AS "postedDate" -- <<< CHANGED FROM posted_date to start_date
       FROM
           research_center.Research_Projects rp
@@ -112,7 +116,7 @@ const filterProjectsMultiple = async (req, res) => {
       paramIndex++;
   }
   if (showOpenOnly) {
-      baseQuery += ` AND rp.availability = 'open'`;
+      baseQuery += ` AND rp.availability = 'Open'`;
   }
 
   // --- Grouping updated ---
@@ -142,7 +146,7 @@ const filterProjectsMultiple = async (req, res) => {
           baseQuery += ' ORDER BY rp.start_date DESC'; // <<< CHANGED
           break;
       case 'spots':
-           baseQuery += ` ORDER BY rp.availability DESC, CASE WHEN rp.availability = 'open' THEN rp.students_needed ELSE 0 END ASC`;
+           baseQuery += ` ORDER BY rp.availability DESC, CASE WHEN rp.availability = 'Open' THEN rp.students_needed ELSE 0 END ASC`;
           break;
       case 'relevance':
       default:
