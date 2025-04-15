@@ -1,0 +1,124 @@
+/* NewsFeed Container */
+.newsfeed-container {
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  /* Header Styling */
+  .newsfeed-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .newsfeed-header h2 {
+    font-size: 24px;
+    color: #3E4BD7;
+    margin: 0;
+  }
+  
+  /* Create Post Section */
+  .newsfeed-create {
+    background-color: #f3f4f6;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .newsfeed-create h3 {
+    margin-top: 0;
+    color: #3E4BD7;
+  }
+  
+  .newsfeed-input,
+  .newsfeed-textarea,
+  .newsfeed-select {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 14px;
+    outline: none;
+  }
+  
+  .newsfeed-textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+  .newsfeed-submit-btn {
+    background-color: #3E4BD7;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
+  }
+  
+  .newsfeed-submit-btn:hover {
+    background-color: #2c3ab5;
+  }
+  
+  /* Posts Listing */
+  .newsfeed-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .newsfeed-post-card {
+    background-color: #f3f4f6;
+    border-radius: 12px;
+    padding: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .newsfeed-post-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .post-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .post-title {
+    margin: 0;
+    font-size: 18px;
+    color: #3E4BD7;
+    font-weight: 600;
+  }
+  
+  .post-category {
+    background: #8B5CF6;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  
+  .post-content {
+    font-size: 14px;
+    color: #333;
+    margin: 0 0 10px;
+    line-height: 1.5;
+  }
+  
+  .post-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #888;
+  }
+  

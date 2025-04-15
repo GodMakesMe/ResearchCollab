@@ -1,0 +1,113 @@
+/* Notification Popup - Top-right corner with translucent background */
+
+.notification-popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(62, 75, 215, 0.8); /* Translucent blue */
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .notification-popup:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  
+  .notification-icon {
+    font-size: 20px;
+  }
+  
+  .notification-count {
+    background: #ff3b30;
+    color: white;
+    border-radius: 50%;
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-left: 8px;
+  }
+  
+  /* Notification Sidebar */
+  
+  .notification-sidebar {
+    position: fixed;
+    top: 0;
+    right: -350px; /* Hide sidebar by default */
+    width: 350px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95); /* Translucent white */
+    box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+    transition: right 0.3s ease;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .notification-sidebar.open {
+    right: 0;
+  }
+  
+  .sidebar-header {
+    background: #3e4bd7;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .sidebar-header h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  .sidebar-content {
+    padding: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+  
+  .notification-item {
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: background 0.3s ease;
+  }
+  
+  .notification-item:hover {
+    background: #e9ecf3;
+  }
+  
+  .notif-title {
+    margin: 0 0 6px;
+    font-size: 16px;
+    color: #3e4bd7;
+  }
+  
+  .notif-message {
+    font-size: 14px;
+    margin: 0 0 6px;
+    color: #333;
+  }
+  
+  .notif-time {
+    font-size: 12px;
+    color: #888;
+  }
+  
