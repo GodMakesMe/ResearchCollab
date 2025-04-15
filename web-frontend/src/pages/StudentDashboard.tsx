@@ -2,10 +2,34 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Navigation from "../components/Navigation";  // Import Navigation component
 import Footer from "../components/Footer";          // Import Footer component
+import { jwtDecode } from "jwt-decode";               // Import jwt-decode library
+
+interface MyJwtPayload {
+  email: string;
+  role: 'admin' | 'faculty' | 'student'; // or just `string` if not fixed
+  iat: number;
+  exp: number;
+}
 
 const DashboardScreen: React.FC = () => {
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
   const location = useLocation();
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("No token found. Please log in.");
+    window.location.href = "/login";
+    return null;
+  }
+
+  const decodedToken = jwtDecode<MyJwtPayload>(token.split(' ')[1] || token);
+  console.log("Decoded token:", decodedToken);
+
+  // Now TypeScript knows what `.role` is
+  if (decodedToken.role === "faculty") {
+    // localStorage.removeItem("token");
+    window.location.href = "/faculty-dashboard";
+    return null;
+  }
 
   const toggleProject = (title: string) => {
     setExpandedProject((prev) => (prev === title ? null : title));

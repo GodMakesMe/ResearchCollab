@@ -21,7 +21,7 @@ const App: React.FC = () => {
         <Route path="/projects" element={<Projects />} />
         <Route path="/profile" element={<Profile />} /> {/* Add Profile route */}
         <Route path="/project/:id" element={<ProjectDetail />} /> {/* Dedicated project page */}
-        <Route path="/student-dashboard" element={<StudentDashboard/>} /> {/* Student dashboard route */}
+        <Route path="/dashboard" element={<StudentDashboard/>} /> {/* Student dashboard route */}
         <Route path="/faculty-dashboard" element={<FacultyDashboard/>} /> {/* Faculty dashboard route */}
         <Route path="/newsfeed" element={<NewsFeed />} /> {/* News feed route */}
         <Route path="/research-papers" element={<ResearchPapersPage />} /> {/* Research papers route */}

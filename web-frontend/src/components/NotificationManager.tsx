@@ -61,15 +61,21 @@ const NotificationManager: React.FC = () => {
   return (
     <>
       {/* Notification Popup */}
-      <div className="notification-popup" onClick={toggleSidebar}>
-        <div className="notification-icon">
-          {/* Optionally add an icon or use text */}
-          🔔
+      <div
+        onClick={toggleSidebar}
+        className="relative -mt-1 cursor-pointer bg-white rounded-full p-2 shadow hover:ring-2 hover:ring-purple-300 transition duration-200"
+      >
+        <div className="text-xl text-purple-600 hover:text-purple-800">
+          <i className="fas fa-bell"></i>
         </div>
         {newNotificationsCount > 0 && (
-          <div className="notification-count">{newNotificationsCount}</div>
+          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 shadow">
+            {newNotificationsCount}
+          </div>
         )}
       </div>
+
+
 
       {/* Notification Sidebar */}
       <div className={`notification-sidebar ${isSidebarOpen ? 'open' : ''}`}>

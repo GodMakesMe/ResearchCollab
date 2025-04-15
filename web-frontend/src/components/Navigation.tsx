@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import NotificationManager from './NotificationManager'; // Adjust path if needed
 
 const Navigation: React.FC = () => {
   const location = useLocation();
@@ -9,7 +10,7 @@ const Navigation: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white shadow-md relative z-50">
       <div className="container mx-auto px-6 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <span className="text-2xl font-bold text-purple-800">
@@ -33,10 +34,10 @@ const Navigation: React.FC = () => {
             Resources
           </Link>
         </div>
-        <div className="flex items-center space-x-4">
-          <Link to="#" className="text-gray-600 hover:text-purple-600">
-            <i className="fas fa-bell"></i>
-          </Link>
+        <div className="flex items-center space-x-4 relative">
+          {/* Replace bell icon with NotificationManager */}
+          <NotificationManager />
+
           <Link to="/profile" className={`bg-purple-100 p-2 rounded-full hover:ring-2 ring-purple-300 transition ${isActive('/profile')}`}>
             <span className="text-purple-800 font-medium">JP</span>
           </Link>

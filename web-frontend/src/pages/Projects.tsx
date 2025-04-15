@@ -239,10 +239,10 @@ const Projects: React.FC = () => {
     selectedProfessors.forEach(p => filters.push({ type: 'professor', value: p }));
     selectedSkills.forEach(s => filters.push({ type: 'skill', value: s }));
     if (showOpenOnly) {
-        filters.push({ type: 'availability', value: 'Open Positions' });
+        filters.push({ type: 'availability', value: 'Open' });
     }
     setActiveFiltersForDisplay(filters);
-  }, [selectedDomains, selectedProfessors, selectedSkills, showOpenOnly]);
+  }, [selectedDomains, selectedProfessors, selectedSkills, showOpenOnly == true ? 'open' : 'closed']);
 
 
   // --- Filter Handlers (remain the same) ---

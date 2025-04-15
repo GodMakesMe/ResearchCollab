@@ -1,8 +1,36 @@
 import React from "react";
 import Navigation from "../components/Navigation";  // Adjust the path as needed
 import Footer from "../components/Footer";          // Adjust the path as needed
+import { jwtDecode } from "jwt-decode";
+
+interface MyJwtPayload {
+  email: string;
+  role: 'admin' | 'faculty' | 'student'; // or just `string` if not fixed
+  iat: number;
+  exp: number;
+}
+
 
 const ResearchCollabDashboard: React.FC = () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("No token found. Please log in.");
+    window.location.href = "/login";
+    return null;
+  }
+
+  const decodedToken = jwtDecode<MyJwtPayload>(token.split(' ')[1] || token);
+  console.log("Decoded token:", decodedToken);
+
+  // Now TypeScript knows what `.role` is
+  if (!(decodedToken.role === "faculty")) {
+    alert("You do not have permission to access this page.");
+    // localStorage.removeItem("token");
+    window.location.href = "/dashboard";
+    return null;
+  }
+
+
   const styles: { [key: string]: React.CSSProperties } = {
     container: {
       fontFamily: "sans-serif",
