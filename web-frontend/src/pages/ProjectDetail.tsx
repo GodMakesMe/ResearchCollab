@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
+import { backend_url } from '../utils/constants';
 
 interface Project {
   id: number;
@@ -17,6 +18,7 @@ interface Project {
   professorId: string;
 }
 
+
 const ProjectDetail: React.FC = () => {
   // Grab the project id from the route parameters.
   const { id } = useParams<{ id: string }>();
@@ -26,10 +28,12 @@ const ProjectDetail: React.FC = () => {
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
     // Fetch the project details from the backend using the id.
     const fetchProject = async () => {
       try {
-        const response = await fetch(`/project/${id}`);
+        const response = await fetch(backend_url + `/projects/by-id/${id}`)
+        console.log(response);
         if (!response.ok) {
           throw new Error('Failed to fetch project');
         }

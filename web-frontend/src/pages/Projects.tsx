@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Navigation from '../components/Navigation'; // Adjust path if needed
 import Footer from '../components/Footer'; // Adjust path if needed
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Adjust path if needed
 import {backend_url} from '../utils/constants'; // Adjust path if needed
 // Interface remains the same
 interface Project {
@@ -441,7 +443,10 @@ const Projects: React.FC = () => {
                                             <span className="text-sm text-gray-500"><i className="fas fa-users mr-1 text-gray-400"></i> {project.studentsNeeded} Student{project.studentsNeeded !== 1 ? 's' : ''} needed</span>
                                             <span className={`text-xs px-2 py-1 rounded-full font-semibold ${project.availability === 'Open' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}> {project.availability === 'Open' ? 'Open' : 'Closed'} </span>
                                         </div>
-                                        <a href={`/projects/${project.id}`} className="text-purple-600 hover:text-purple-800 font-medium text-sm group"> Details <i className="fas fa-arrow-right text-xs ml-1 group-hover:translate-x-1 transition-transform"></i> </a>
+                                        {/* <a href={`/projects/${project.id}`} className="text-purple-600 hover:text-purple-800 font-medium text-sm group"> Details <i className="fas fa-arrow-right text-xs ml-1 group-hover:translate-x-1 transition-transform"></i> </a> */}
+                                        <Link to={`/project/${project.id}`} className="text-purple-600 hover:text-purple-800">
+                                          Details →
+                                        </Link>
                                     </div>
                                 </div>
                              </div>

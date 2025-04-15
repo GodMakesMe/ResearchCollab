@@ -5,6 +5,8 @@ import Projects from './pages/Projects';
 import LoginPage from './pages/LoginScreen';
 import Profile from './pages/Profile';
 import ProjectDetail from './pages/ProjectDetail'; // Import Profile page
+import StudentDashboard from './pages/StudentDashboard'; // Import Student Dashboard page
+// import WebAdmin from './pages/webAdminLogin'; // Uncomment if needed
 // import DashboardScreen from './pages/StudentDashboard';
 
 const App: React.FC = () => {
@@ -16,7 +18,7 @@ const App: React.FC = () => {
         <Route path="/projects" element={<Projects />} />
         <Route path="/profile" element={<Profile />} /> {/* Add Profile route */}
         <Route path="/project/:id" element={<ProjectDetail />} /> {/* Dedicated project page */}
-        <Route path="/student-dashboard" element={<Profile />} /> {/* Student dashboard route */}
+        <Route path="/student-dashboard" element={<StudentDashboard/>} /> {/* Student dashboard route */}
       </Routes>
     </Router>
   );
