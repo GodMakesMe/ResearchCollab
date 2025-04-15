@@ -5,7 +5,7 @@ import Projects from './pages/Projects';
 import LoginPage from './pages/LoginScreen';
 import Profile from './pages/Profile';
 import ProjectDetail from './pages/ProjectDetail'; // Import Profile page
-import DashboardScreen from './pages/StudentDashboard';
+// import DashboardScreen from './pages/StudentDashboard';
 
 const App: React.FC = () => {
   return (
