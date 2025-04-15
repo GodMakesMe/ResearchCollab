@@ -9,6 +9,10 @@ const Profile: React.FC = () => {
     name: 'John Doe',
     email: 'johndoe@example.com',
     role: 'Student',
+    phone: '+1 234 567 8901',
+    institution: 'XYZ University',
+    department: 'Computer Science',
+    interests: 'AI, Machine Learning, Data Science',
     bio: 'Passionate about AI and machine learning. Looking to collaborate on impactful research.',
   });
 
@@ -19,11 +23,7 @@ const Profile: React.FC = () => {
       navigate('/login');
     }
 
-    // You can fetch actual user data here
-    // Example:
-    // fetch('/api/user', { headers: { Authorization: `Bearer ${token}` } })
-    //   .then(res => res.json())
-    //   .then(data => setUserData(data));
+    // fetch user data logic here
   }, [navigate]);
 
   return (
@@ -42,8 +42,9 @@ const Profile: React.FC = () => {
       <section className="py-16">
         <div className="container mx-auto px-6 max-w-4xl">
           <div className="bg-white p-8 rounded-lg shadow-md">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Basic Information</h2>
+            {/* Basic Info */}
+            <div className="mb-10">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Basic Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-gray-600 font-medium block mb-2">Full Name</label>
@@ -64,6 +65,15 @@ const Profile: React.FC = () => {
                   />
                 </div>
                 <div>
+                  <label className="text-gray-600 font-medium block mb-2">Phone Number</label>
+                  <input
+                    type="text"
+                    value={userData.phone}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                    disabled
+                  />
+                </div>
+                <div>
                   <label className="text-gray-600 font-medium block mb-2">Role</label>
                   <input
                     type="text"
@@ -75,7 +85,42 @@ const Profile: React.FC = () => {
               </div>
             </div>
 
-            <div className="mb-8">
+            {/* Academic & Research Info */}
+            <div className="mb-10">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Academic & Research</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="text-gray-600 font-medium block mb-2">Institution</label>
+                  <input
+                    type="text"
+                    value={userData.institution}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                    disabled
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-600 font-medium block mb-2">Department</label>
+                  <input
+                    type="text"
+                    value={userData.department}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                    disabled
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-gray-600 font-medium block mb-2">Research Interests</label>
+                  <input
+                    type="text"
+                    value={userData.interests}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div className="mb-10">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">Bio</h2>
               <textarea
                 className="w-full border border-gray-300 rounded-lg px-4 py-3"
@@ -97,7 +142,7 @@ const Profile: React.FC = () => {
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-gray-800 mb-8">Your Projects</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Example cards — dynamically load based on user in real setup */}
+            {/* Example cards — replace with dynamic loading later */}
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold text-purple-800 mb-2">AI for Healthcare</h3>
               <p className="text-gray-600">Developing AI models to assist in early diagnosis.</p>
