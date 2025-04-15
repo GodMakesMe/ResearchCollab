@@ -218,6 +218,13 @@ const addUser = async (req, res) => {
   if (!name || !email || !role) {
     return res.status(400).send('All fields are required');
   }
+  if (password == '123456789') {
+    return res.status(400).send('Illegal Password');
+  }
+  if (!password){
+    password = '123456789';
+    password = await bcrypt.hash(password, 10);
+  }
   try {
     await pool.query('INSERT INTO users (name, email, role, password ) VALUES ($1, $2)', [name, email, role, password]);
     res.status(201).send('User added');
