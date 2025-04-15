@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
 import LoginPage from './pages/LoginScreen';
+import Profile from './pages/Profile';
+import ProjectDetail from './pages/ProjectDetail'; // Import Profile page
 
 const App: React.FC = () => {
   return (
@@ -11,6 +13,8 @@ const App: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<Home />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/profile" element={<Profile />} /> {/* Add Profile route */}
+        <Route path="/project/:id" element={<ProjectDetail />} /> {/* Dedicated project page */}
       </Routes>
     </Router>
   );

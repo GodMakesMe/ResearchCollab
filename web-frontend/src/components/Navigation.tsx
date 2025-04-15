@@ -37,7 +37,7 @@ const Navigation: React.FC = () => {
           <Link to="#" className="text-gray-600 hover:text-purple-600">
             <i className="fas fa-bell"></i>
           </Link>
-          <Link to="#" className="bg-purple-100 p-2 rounded-full">
+          <Link to="/profile" className={`bg-purple-100 p-2 rounded-full hover:ring-2 ring-purple-300 transition ${isActive('/profile')}`}>
             <span className="text-purple-800 font-medium">JP</span>
           </Link>
         </div>
@@ -46,4 +46,4 @@ const Navigation: React.FC = () => {
   );
 };
 
-export default Navigation; 
+export default Navigation;
