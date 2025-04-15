@@ -179,10 +179,10 @@ const Projects: React.FC = () => {
 
       try {
         // Auth Header
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('token');
         const headers: HeadersInit = { 'Content-Type': 'application/json' };
         if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
+            headers['Authorization'] = `${token}`;
         }
 
         const response = await fetch(backend_url + `/projects/filter?${params.toString()}`, { headers });
