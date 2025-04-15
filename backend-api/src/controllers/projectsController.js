@@ -361,4 +361,4 @@ const addProjects = async (req, res) => {
 };
 
 
-module.exports = { getAllProjects, addProjects, getProjects, getProjectById, editProject, deleteProject, partialUpdateProject, filterProjectsMultiple };
+module.exports = { getAllProjects, addProjects, getProjects, getProjectById, editProject, deleteProject, partialUpdateProject, filterProjectsMultiple, getTopDomains };
