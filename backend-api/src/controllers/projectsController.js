@@ -10,6 +10,174 @@ const getAllProjects = async (req, res) => {
 };
 
 
+
+const parseQueryArray = (queryParam) => {
+  if (!queryParam || typeof queryParam !== 'string') return [];
+  return queryParam.split(',').map(item => item.trim()).filter(Boolean);
+}
+
+// --- Controller Function to get Top 5 Domains ---
+const getTopDomains = async (req, res) => {
+  try {
+      // Query the Domains table, order by significance descending, limit to 5
+      const query = `
+          SELECT
+              domain_id,
+              name
+          FROM
+              research_center.Domains
+          ORDER BY
+              significance DESC NULLS LAST -- Higher significance first, handle potential NULLs
+          LIMIT 5;
+      `;
+      const { rows } = await db.query(query);
+      // Send back just the names, as the frontend likely uses names for filtering
+      res.status(200).json(rows.map(row => row.name));
+      // Or send the full objects if needed: res.status(200).json(rows);
+  } catch (error) {
+      console.error('Error fetching top domains:', error);
+      res.status(500).json({ message: 'Error fetching top domains', error: error.message });
+  }
+};
+
+
+// --- Updated filterProjectsMultiple ---
+const filterProjectsMultiple = async (req, res) => {
+  // --- Extract and sanitize query parameters (remains the same) ---
+  const {
+      search, skills, domains, professors, students, openOnly, sortBy, page = 1, limit = 10
+  } = req.query;
+
+  const searchParam = search ? `%${search}%` : null;
+  const skillsArray = parseQueryArray(skills);
+  const domainsArray = parseQueryArray(domains);
+  const professorsArray = parseQueryArray(professors);
+  const maxStudents = parseInt(students, 10) || null;
+  const showOpenOnly = openOnly === 'true';
+  const pageNum = parseInt(page, 10) || 1;
+  const limitNum = parseInt(limit, 10) || 10;
+  const offset = (pageNum - 1) * limitNum;
+
+  let queryParams = [];
+  let paramIndex = 1;
+
+  // --- Base query updated ---
+  let baseQuery = `
+      SELECT
+          rp.project_id AS id,
+          rp.title,
+          rp.description,
+          dom.name AS domain,
+          ARRAY_AGG(DISTINCT exp.name) FILTER (WHERE exp.name IS NOT NULL) AS skills,
+          prof_user.name AS professor,
+          f.faculty_id AS "professorId",
+          rp.students_needed AS "studentsNeeded",
+          rp.availability,
+          CASE WHEN rp.availability = 'open' THEN rp.students_needed ELSE 0 END AS "spotsLeft",
+          rp.start_date AS "postedDate" -- <<< CHANGED FROM posted_date to start_date
+      FROM
+          research_center.Research_Projects rp
+      JOIN
+          research_center.Faculty f ON rp.faculty_id = f.faculty_id
+      JOIN
+          research_center.Users prof_user ON f.user_id = prof_user.user_id
+      LEFT JOIN
+          research_center.Domains dom ON rp.domain_id = dom.domain_id
+      LEFT JOIN
+          research_center.Project_Skills ps ON rp.project_id = ps.project_id
+      LEFT JOIN
+          research_center.Expertise exp ON ps.skill_id = exp.skill_id
+      WHERE 1=1
+  `;
+
+  // --- Append WHERE conditions (remains the same) ---
+  if (searchParam) {
+      baseQuery += ` AND (rp.title ILIKE $${paramIndex} OR rp.description ILIKE $${paramIndex})`;
+      queryParams.push(searchParam);
+      paramIndex++;
+  }
+  if (domainsArray.length > 0) {
+      baseQuery += ` AND dom.name = ANY($${paramIndex}::text[])`;
+      queryParams.push(domainsArray);
+      paramIndex++;
+  }
+  if (professorsArray.length > 0) {
+      baseQuery += ` AND prof_user.name = ANY($${paramIndex}::text[])`;
+      queryParams.push(professorsArray);
+      paramIndex++;
+  }
+  if (maxStudents !== null) {
+      baseQuery += ` AND rp.students_needed <= $${paramIndex}`;
+      queryParams.push(maxStudents);
+      paramIndex++;
+  }
+  if (showOpenOnly) {
+      baseQuery += ` AND rp.availability = 'open'`;
+  }
+
+  // --- Grouping updated ---
+  baseQuery += `
+      GROUP BY
+          rp.project_id,
+          rp.title,
+          rp.description,
+          dom.name,
+          prof_user.name,
+          f.faculty_id,
+          rp.students_needed,
+          rp.availability,
+          rp.start_date -- <<< CHANGED FROM posted_date to start_date
+  `;
+
+  // --- Append HAVING condition for skills (remains the same) ---
+  if (skillsArray.length > 0) {
+      baseQuery += ` HAVING ARRAY(SELECT unnest($${paramIndex}::text[])) <@ ARRAY_AGG(DISTINCT exp.name)`;
+      queryParams.push(skillsArray);
+      paramIndex++;
+  }
+
+  // --- Append ORDER BY clause updated ---
+  switch (sortBy) {
+      case 'newest':
+          baseQuery += ' ORDER BY rp.start_date DESC'; // <<< CHANGED
+          break;
+      case 'spots':
+           baseQuery += ` ORDER BY rp.availability DESC, CASE WHEN rp.availability = 'open' THEN rp.students_needed ELSE 0 END ASC`;
+          break;
+      case 'relevance':
+      default:
+          baseQuery += ' ORDER BY rp.start_date DESC'; // <<< CHANGED (Defaulting to newest based on start_date)
+          break;
+  }
+
+  // --- Append LIMIT and OFFSET (remains the same) ---
+  baseQuery += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+  queryParams.push(limitNum, offset);
+
+  // --- Execute the query (remains the same) ---
+  try {
+      // console.log("Executing Query:", baseQuery); // Keep for debugging if needed
+      // console.log("With Params:", queryParams);
+      const result = await db.query(baseQuery, queryParams);
+
+      const projects = result.rows.map(row => ({
+          ...row,
+          id: parseInt(row.id, 10),
+          studentsNeeded: parseInt(row.studentsNeeded, 10),
+          spotsLeft: parseInt(row.spotsLeft, 10),
+          postedDate: row.postedDate ? new Date(row.postedDate).toISOString() : null,
+          skills: row.skills || [],
+      }));
+
+      res.status(200).json(projects);
+
+  } catch (error) {
+      console.error('Error fetching projects:', error);
+      res.status(500).json({ message: 'Error fetching projects', error: error.message });
+  }
+};
+  
+
 const getProjects = async (req, res) => {
   const {
     sortBy = "project_id",
@@ -192,4 +360,5 @@ const addProjects = async (req, res) => {
   }
 };
 
-module.exports = { getAllProjects, addProjects, getProjects, getProjectById, editProject, deleteProject, partialUpdateProject };
+
+module.exports = { getAllProjects, addProjects, getProjects, getProjectById, editProject, deleteProject, partialUpdateProject, filterProjectsMultiple, getTopDomains };

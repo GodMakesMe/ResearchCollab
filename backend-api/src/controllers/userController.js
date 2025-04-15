@@ -100,9 +100,10 @@ const editUser = async (req, res) => {
   console.log('Updating user (user_id, name, email, role, phone):', { user_id, name, email, role, phone });
 
   try {
+    const phoneText = phone && phone !== '' ? ', phone = ' + phone : '';
     const result = await pool.query(
-      'UPDATE users SET name = $1, email = $2, role = $3, phone = $4 WHERE user_id = $5',
-      [name, email, role, phone, user_id]
+      'UPDATE users SET name = $1, email = $2, role = $3 $4 WHERE user_id = $5',
+      [name, email, role, phoneText, user_id]
     );
     if (result.rowCount === 0) {
       return res.status(404).send('User not found');
