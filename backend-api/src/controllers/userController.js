@@ -229,6 +229,7 @@ const addUser = async (req, res) => {
     await pool.query('INSERT INTO users (name, email, role, password ) VALUES ($1, $2)', [name, email, role, password]);
     res.status(201).send('User added');
   } catch (err) {
+    console.log('Error adding user:', err);
     res.status(500).send('Error adding user');
   }
 };
