@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import { useNavigate } from 'react-router-dom';
+import logoImage from '../assets/Logo_Main.png'; // Ensure this path is correct
 
 const Home: React.FC = () => {
-  // const token = localStorage.getItem('token');
   const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -13,25 +13,39 @@ const Home: React.FC = () => {
       console.log('Token not found, redirecting to login...');
       navigate('/login');
     }
-    
   }, [navigate]);
-  
+
   return (
     <div className="bg-gray-50 font-sans">
       <Navigation />
-      
+
       {/* Hero Section */}
       <section className="hero-gradient text-white py-20">
         <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center">
-            <div className="md:w-1/2 mb-10 md:mb-0">
+          {/* Adjust flex container if needed, centering content might look good */}
+          <div className="flex flex-col items-center"> {/* Center the content block */}
+
+            {/* Content Block (Wider now) */}
+            {/* Text alignment centered on small screens, left on medium+ */}
+            <div className="w-full md:w-4/5 lg:w-3/4 xl:w-2/3 text-center md:text-left">
+
+              {/* Logo Placed Above Headline */}
+              <img
+                src={logoImage}
+                alt="Research Collab Logo"
+                // Set height, auto width, add bottom margin.
+                // Center on mobile (mx-auto), align left on desktop (md:mx-0)
+                className="h-16 sm:h-20 w-auto mb-6 mx-auto md:mx-0"
+              />
+
               <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">
                 Streamline Your Research Project Management
               </h1>
               <p className="text-xl mb-8">
                 A collaborative platform designed to help researchers, professors, and students manage research projects efficiently.
               </p>
-              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              {/* Center buttons on mobile (default), align start on md+ */}
+              <div className="flex flex-col sm:flex-row justify-center md:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
                 <Link
                   to="/projects"
                   className="bg-white text-purple-800 font-medium px-6 py-3 rounded-lg hover:bg-gray-100 transition duration-200 text-center"
@@ -39,16 +53,14 @@ const Home: React.FC = () => {
                   Explore Projects
                 </Link>
                 <Link
-                  to="#"
+                  to="#" // Link this appropriately later
                   className="border border-white text-white font-medium px-6 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition duration-200 text-center"
                 >
                   Create Project
                 </Link>
               </div>
             </div>
-            <div className="md:w-1/2">
-              <img src="/api/placeholder/600/400" alt="Research Collaboration" className="rounded-lg shadow-xl" />
-            </div>
+            {/* Removed the separate right-side div that held the image */}
           </div>
         </div>
       </section>
@@ -57,33 +69,22 @@ const Home: React.FC = () => {
       <section className="py-16">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Why Choose Research Collab?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* ... Feature cards ... */}
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-lg shadow-md transition duration-300 feature-card">
-              <div className="text-purple-600 text-4xl mb-4">
-                <i className="fas fa-search"></i>
-              </div>
+              <div className="text-purple-600 text-4xl mb-4"> <i className="fas fa-search"></i> </div>
               <h3 className="text-xl font-semibold mb-3">Find Relevant Projects</h3>
-              <p className="text-gray-600">
-                Discover research projects that match your skills, interests, and academic goals with advanced filtering.
-              </p>
+              <p className="text-gray-600"> Discover research projects that match your skills, interests, and academic goals with advanced filtering. </p>
             </div>
             <div className="bg-white p-8 rounded-lg shadow-md transition duration-300 feature-card">
-              <div className="text-purple-600 text-4xl mb-4">
-                <i className="fas fa-users"></i>
-              </div>
+              <div className="text-purple-600 text-4xl mb-4"> <i className="fas fa-users"></i> </div>
               <h3 className="text-xl font-semibold mb-3">Team Collaboration</h3>
-              <p className="text-gray-600">
-                Connect with professors and students, form research teams, and collaborate effectively in one platform.
-              </p>
+              <p className="text-gray-600"> Connect with professors and students, form research teams, and collaborate effectively in one platform. </p>
             </div>
             <div className="bg-white p-8 rounded-lg shadow-md transition duration-300 feature-card">
-              <div className="text-purple-600 text-4xl mb-4">
-                <i className="fas fa-tasks"></i>
-              </div>
+              <div className="text-purple-600 text-4xl mb-4"> <i className="fas fa-tasks"></i> </div>
               <h3 className="text-xl font-semibold mb-3">Project Management</h3>
-              <p className="text-gray-600">
-                Track progress, manage tasks, and achieve research milestones with intuitive project management tools.
-              </p>
+              <p className="text-gray-600"> Track progress, manage tasks, and achieve research milestones with intuitive project management tools. </p>
             </div>
           </div>
         </div>

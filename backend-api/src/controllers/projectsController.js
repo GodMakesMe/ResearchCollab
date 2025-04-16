@@ -268,16 +268,87 @@ const getProjects = async (req, res) => {
   
 const getProjectById = async (req, res) => {
   const { id } = req.params;
-  try {
-    const { rows } = await pool.query('SELECT * FROM research_projects WHERE project_id = $1', [id]);
-    if (rows.length === 0) {
-      return res.status(404).send('Project not found');
-    }
-    res.status(200).json(rows[0]);
-  } catch (err) {
-    res.status(500).send('Error fetching project details');
+
+  // Basic validation for ID
+  if (isNaN(parseInt(id, 10))) {
+      return res.status(400).json({ message: 'Invalid project ID format.' });
   }
-}
+  const projectId = parseInt(id, 10);
+
+  const query = `
+      SELECT
+          rp.project_id AS id,
+          rp.title,
+          rp.description,
+          dom.name AS domain,
+          ARRAY_AGG(DISTINCT exp.name) FILTER (WHERE exp.name IS NOT NULL) AS skills,
+          prof_user.name AS professor,
+          f.faculty_id AS "professorId", -- Match frontend interface key
+          rp.students_needed AS "studentsNeeded",
+          rp.availability, -- Fetch the raw value ('Open' or 'Closed')
+          CASE WHEN rp.availability = 'Open' THEN rp.students_needed ELSE 0 END AS "spotsLeft",
+          rp.start_date AS "postedDate" -- Map start_date to postedDate
+      FROM
+          research_center.Research_Projects rp
+      JOIN -- Use JOIN since a project MUST have a faculty member
+          research_center.Faculty f ON rp.faculty_id = f.faculty_id
+      JOIN -- Use JOIN for the professor's user details
+          research_center.Users prof_user ON f.user_id = prof_user.user_id
+      LEFT JOIN -- Use LEFT JOIN in case domain is optional/null
+          research_center.Domains dom ON rp.domain_id = dom.domain_id
+      LEFT JOIN -- Use LEFT JOIN in case skills are optional/null
+          research_center.Project_Skills ps ON rp.project_id = ps.project_id
+      LEFT JOIN
+          research_center.Expertise exp ON ps.skill_id = exp.skill_id
+      WHERE
+          rp.project_id = $1
+      GROUP BY -- Group by all non-aggregated columns
+          rp.project_id,
+          rp.title,
+          rp.description,
+          dom.name,
+          prof_user.name,
+          f.faculty_id,
+          rp.students_needed,
+          rp.availability,
+          rp.start_date;
+  `;
+
+  try {
+      console.log(`Fetching project details for ID: ${projectId}`);
+      const result = await pool.query(query, [projectId]);
+
+      if (result.rows.length === 0) {
+          console.log(`Project not found for ID: ${projectId}`);
+          return res.status(404).json({ message: 'Project not found' });
+      }
+
+      // Data found, format it slightly for the frontend
+      const projectData = result.rows[0];
+      const formattedProject = {
+          ...projectData,
+          id: parseInt(projectData.id, 10),
+          professorId: parseInt(projectData.professorId, 10), // Ensure professorId is number if needed, else string
+          studentsNeeded: parseInt(projectData.studentsNeeded, 10),
+          spotsLeft: parseInt(projectData.spotsLeft, 10),
+          // Ensure skills is an array, even if null from DB
+          skills: projectData.skills || [],
+           // Format date to ISO string for consistency
+          postedDate: projectData.postedDate ? new Date(projectData.postedDate).toISOString() : null,
+          // Map DB 'Open'/'Closed' directly to frontend type
+          availability: projectData.availability === 'Open' ? 'Open' : 'Closed',
+      };
+
+
+      console.log(`Successfully fetched project details for ID: ${projectId}`);
+      res.status(200).json(formattedProject);
+
+  } catch (error) {
+      console.error(`Error fetching project details for ID ${projectId}:`, error);
+      res.status(500).json({ message: 'Error fetching project details', error: error.message });
+  }
+};
+
 
 const deleteProject = async (req, res) => {
   const { id } = req.params;

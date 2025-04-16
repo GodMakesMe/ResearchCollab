@@ -6,11 +6,11 @@ import Footer from '../components/Footer';
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
-    name: 'John Doe',
-    email: 'johndoe@example.com',
+    name: 'john dee',
+    email: 'johndee@iiitd.ac.in',
     role: 'Student',
     phone: '+1 234 567 8901',
-    institution: 'XYZ University',
+    institution: 'IIITD Delhi',
     department: 'Computer Science',
     interests: 'AI, Machine Learning, Data Science',
     bio: 'Passionate about AI and machine learning. Looking to collaborate on impactful research.',

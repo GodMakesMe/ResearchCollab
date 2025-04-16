@@ -28,26 +28,80 @@ const ProjectDetail: React.FC = () => {
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    // Fetch the project details from the backend using the id.
     const fetchProject = async () => {
+      setLoading(true);
+      setError(''); // Clear previous errors
+      const token = localStorage.getItem('token'); // Get token
+
+      // ** Add check for token before fetching **
+      if (!token) {
+         setError('Authentication required. Please log in.');
+         setLoading(false);
+         // Optionally redirect to login
+         // navigate('/login');
+         return; // Stop fetching if no token
+      }
+
       try {
-        const response = await fetch(backend_url + `/projects/by-id/${id}`)
-        console.log(response);
-        if (!response.ok) {
-          throw new Error('Failed to fetch project');
-        }
-        const data: Project = await response.json();
-        setProject(data);
-      } catch (err) {
-        setError('Project not found or an error occurred.');
+         // ** Prepare headers **
+         const headers: HeadersInit = {
+             'Content-Type': 'application/json',
+             'Authorization': `${token}` // Add the token header
+         };
+
+         // ** Fetch with headers **
+         const response = await fetch(backend_url + `/projects/by-id/${id}`, { headers }); // Pass headers
+
+         console.log('Project Detail Response Status:', response.status); // Log status
+
+         if (response.status === 404) {
+             throw new Error('Project not found.');
+         }
+         if (response.status === 401) {
+             // Handle unauthorized specifically, e.g., bad token
+             setError('Authentication failed. Please log in again.');
+             // Optionally clear token and redirect
+             // localStorage.removeItem('token');
+             // navigate('/login');
+             throw new Error('Authentication failed.'); // Stop processing
+         }
+         if (!response.ok) {
+             throw new Error(`Failed to fetch project (Status: ${response.status})`);
+         }
+
+         // Type assertion might be needed if backend keys don't perfectly match yet
+         const data = await response.json();
+
+         // Optional: Log fetched data for verification
+         console.log("Fetched project data:", data);
+
+         // Basic validation of expected fields before setting state
+         if (!data || typeof data.title === 'undefined' || !Array.isArray(data.skills)) {
+             throw new Error("Received incomplete project data from server.");
+         }
+
+         setProject(data as Project); // Set state (use 'as Project' if types align)
+
+      } catch (err: any) {
+         console.error("Error in fetchProject:", err);
+         // Set error only if it wasn't already set (e.g., by auth failure)
+         if (!error) {
+             setError(err.message || 'An error occurred while fetching project details.');
+         }
       } finally {
-        setLoading(false);
+         setLoading(false);
       }
     };
 
-    fetchProject();
-  }, [id]);
+    // Only fetch if ID is present
+    if (id) {
+        fetchProject();
+    } else {
+        setError("No project ID provided.");
+        setLoading(false);
+    }
+
+  }, [id, navigate]);
 
   return (
     <div className="bg-gray-50 font-sans min-h-screen">
@@ -69,23 +123,22 @@ const ProjectDetail: React.FC = () => {
             <div className="mb-4">
               <span
                 className={`inline-block ${
-                  project.domain === 'computer-science'
-                    ? 'bg-purple-600'
-                    : project.domain === 'engineering'
-                      ? 'bg-blue-600'
-                      : project.domain === 'biology'
-                        ? 'bg-green-600'
-                        : project.domain === 'physics'
-                          ? 'bg-yellow-600'
-                          : project.domain === 'psychology'
-                            ? 'bg-red-600'
-                            : 'bg-gray-600'
+                  // You might also want optional chaining here for safety
+                  project.domain?.toLowerCase() === 'computer-science' ? 'bg-purple-600' :
+                  project.domain?.toLowerCase() === 'engineering' ? 'bg-blue-600' :
+                  project.domain?.toLowerCase() === 'biology' ? 'bg-green-600' :
+                  project.domain?.toLowerCase() === 'physics' ? 'bg-yellow-600 text-gray-800' : // Adjusted contrast
+                  project.domain?.toLowerCase() === 'psychology' ? 'bg-red-600' :
+                  project.domain?.toLowerCase() === 'chemistry' ? 'bg-indigo-600' : // Added color
+                  'bg-gray-600' // Default color
                 } text-white text-xs font-semibold px-3 py-1 rounded-full mr-2`}
               >
-                {project.domain.replace('-', ' ')}
+                {/* *** FIX HERE: Add check for project.domain *** */}
+                {project.domain ? project.domain.replace('-', ' ') : 'Uncategorized'}
               </span>
               <span className="text-sm text-gray-500">
-                Posted {project.postedDate}
+                 {/* Also good practice to check postedDate */}
+                 Posted {project.postedDate ? project.postedDate : 'N/A'}
               </span>
             </div>
 
@@ -105,8 +158,8 @@ const ProjectDetail: React.FC = () => {
 
             <div className="flex items-center mb-4">
               <img
-                src={`/api/placeholder/36/36?name=${project.professorId}`}
-                alt={project.professor}
+                src={`/api/placeholder/36/36?name=${project.professor}`}
+                // alt={project.professor}
                 className="rounded-full"
               />
               <span className="ml-2 text-gray-700">{project.professor}</span>
