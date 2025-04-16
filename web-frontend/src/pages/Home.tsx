@@ -13,6 +13,7 @@ const Home: React.FC = () => {
       console.log('Token not found, redirecting to login...');
       navigate('/login');
     }
+    
   }, [navigate]);
   
   return (

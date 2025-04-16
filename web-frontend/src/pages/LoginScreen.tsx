@@ -92,13 +92,30 @@ const LoginPage: React.FC = () => {
     closeForgotPasswordModal();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isEmailValid) {
-      alert('Please enter a valid email');
-      return;
+    // setLoading(true);
+    setStatus('idle');
+
+    try {
+      const data = await login(email, password);
+      console.log('role:', data.role);
+      if (data.role !== 'admin') {
+        alert('You do not have permission to access this page.');
+        localStorage.removeItem('token');
+        setStatus('error');
+        return;
+      }
+      console.log('Login successful:', data);
+      setStatus('success');
+      navigate('/dashboard'); 
+
+    } catch (err: any) {
+      console.error('Login failed:', err);
+      setStatus('error');
+    } finally {
+      // setLoading(false);
     }
-    alert('Logged in successfully');
   };
 
   useEffect(() => {

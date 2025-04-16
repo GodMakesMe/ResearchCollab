@@ -4,7 +4,7 @@ import {backend_url} from '../utils/constants.js';
 const API_URL = `${backend_url}/api/auth`;
 
 export const register = async (name, email, phone, role, password) => {
-    return await axios.post(`${API_URL}/register`, { name, email, phone, role, password });
+    return await axios.post(`${API_URL}/register-request`, { name, email, phone, role, password });
 };
 
 
@@ -64,6 +64,30 @@ export const googleLogin = async (googleToken) => {
     }
   };
   
+export const googleRegister = async (googleToken) => {
+    console.log('Google token Inside authService.js:', googleToken);
+    try {
+        const response = await axios.post(`${API_URL}/google-register`, { token: googleToken });
+        console.log('Google register response:', response);
+        
+        if (response.data.token) {
+            const token = response.data.token;
+            const decoded = jwtDecode(token.split(' ')[1]);
+    
+            const role = decoded.role;
+            localStorage.setItem('token', token);
+            localStorage.setItem('role', role);
+    
+            return { success: true, role };
+        }
+    
+        return { success: false };
+    }
+    catch (error) {
+        console.error('Google register error:', error);
+        return { success: false };
+    }
+}
 
 export const logout = () => {
     localStorage.removeItem('token');

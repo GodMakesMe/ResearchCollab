@@ -1,11 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
 import './RegisterPage.css'; // Ensure this file is created with styling similar to your LoginPage.css
 import logo from '../assets/Logo_Center.png'; // Adjust the path to your logo
-import { googleLogin, login } from '../services/authServies'
+import { register, googleRegister } from '../services/authServies'
 
+// declare global {
+//   interface Window {
+//     google: typeof google;
+//   }
+
+//   const google: {
+//     accounts: {
+//       id: {
+//         initialize: (config: {
+//           client_id: string;
+//           callback: (response: any) => void;
+//         }) => void;
+//         renderButton: (
+//           parent: HTMLElement,
+//           options: {
+//             theme: string;
+//             size: string;
+//           }
+//         ) => void;
+//         prompt: () => void;
+//       };
+//     };
+//   };
+// }
 
 const RegisterPage: React.FC = () => {
+  const googleDivRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const [studentName, setStudentName] = useState('');
   const [password, setPassword] = useState('');
@@ -28,8 +54,8 @@ const RegisterPage: React.FC = () => {
       // 👇 This is where you should extract and send token to your backend
       try {
         const credential = response.credential; // this is a JWT
-        const data = await googleLogin(credential); // 🔥 Call your backend with Google token
-        console.log('Google login successful:', data);
+        const data = await googleRegister(credential); // 🔥 Call your backend with Google token
+        console.log('Google registration successful:', data);
     
       //   if (data.role !== 'admin') {
       //     alert('You do not have permission to access this page.');
@@ -40,9 +66,16 @@ const RegisterPage: React.FC = () => {
     
         setStatus('success');
         navigate('/');
-      } catch (err) {
-        console.error('Google login failed:', err);
-        setStatus('error');
+      }
+      catch (err: any) {
+        const statusCode = err?.response?.status || err?.status;
+        if (statusCode === 401) {
+          alert('You are already registered. Please login.');
+          navigate('/login');
+        }else{
+          console.error('Google login failed:', err);
+          setStatus('error');
+        }
       }
     };
 
@@ -61,15 +94,15 @@ const RegisterPage: React.FC = () => {
     }
   };
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const handleForgotPassword = () => setForgotPasswordModal(true);
+  // const handleForgotPassword = () => setForgotPasswordModal(true);
   const closeForgotPasswordModal = () => setForgotPasswordModal(false);
 
-  const handleResetPassword = () => {
-    alert(`Password reset link sent to ${email}`);
-    closeForgotPasswordModal();
-  };
+  // const handleResetPassword = () => {
+  //   alert(`Password reset link sent to ${email}`);
+  //   closeForgotPasswordModal();
+  // };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validate the form fields
@@ -87,12 +120,33 @@ const RegisterPage: React.FC = () => {
       alert('Please enter your name.');
       return;
     }
-
-    // Placeholder for sending data to the backend
-    // Example: await registerStudent({ studentName, email, number });
-    console.log('Registration data:', { studentName, email, number });
-    
-    alert('Registration request has been sent to admin. You will be informed when approved.');
+    // try{
+    //   const regex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,}$/; // At least 6 characters, at least one letter and one number
+    //   if (!regex.test(password)) {
+    //     alert('Password must be at least 6 characters long and contain at least one letter and one number.');
+    //     return;
+    //   }
+    // }catch(err){
+    //   console.error('Error validating password:', err);
+    //   alert('Invalid password format.');
+    //   return;
+    // }
+    // If all validations pass, proceed with registration
+    try{
+      const data = await register(studentName, email, number, 'student', password);
+      console.log('Registration data:', { studentName, email, number });
+      alert('Registration request has been sent to admin. You will be informed when approved. Try Again Later, Contact Admin in case of delay');
+    }catch(err: any){
+      const statusCode = err?.response?.status || err?.status;
+      if (statusCode === 401) {
+        alert('You are already registered. Please login.');
+        navigate('/login');
+      }else{
+        console.error('Registration failed:', err);
+        setStatus('error');
+      }
+    }
+    // Optionally, you can reset the form fields after successful registration
 
     // Optionally navigate to login page or any other page after successful submission.
     // navigate('/login');
@@ -108,6 +162,32 @@ const RegisterPage: React.FC = () => {
      setPassword(e.target.value);
      evaluatePasswordStrength(e.target.value);
    };
+
+   useEffect(() => {
+    if (window.google && window.google.accounts && window.google.accounts.id && googleDivRef.current) {
+      try {
+        window.google.accounts.id.initialize({
+          client_id: '772822804133-opg9mba69tr4rb24bbvurfigqf68kqup.apps.googleusercontent.com',
+          callback: handleGoogleResponse,
+        });
+  
+        window.google.accounts.id.renderButton(
+          googleDivRef.current,
+          {
+            theme: 'outline',
+            size: 'large', 
+            type: 'standard',
+            shape: 'rectangular',
+            text: 'signup_with',
+          } as any
+        );
+      } catch (error) {
+          console.error("Error initializing or rendering Google button:", error);
+      }
+    } else {
+        console.warn("Google Identity Services script not loaded yet or ref not ready.");
+    }
+  }, []);
 
   return (
     <div className="login-container">
@@ -174,7 +254,10 @@ const RegisterPage: React.FC = () => {
           </div>
 
           
-          <button type="submit" className="submit-btn">Register</button>
+          <button type="submit" className="submit-btn" onClick={handleSubmit}>Register</button>
+          <div style={{ textAlign: 'center' , padding: '1rem' ,display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '20px'}}>
+            <div ref={googleDivRef}></div>
+          </div>
 
         </form>
 

@@ -51,6 +51,7 @@ const googleLogin = async (req, res) => {
 };
 
 
+
 // User Login
 const login = async (req, res) => {
     const { email, password } = req.body;
@@ -91,19 +92,17 @@ const login = async (req, res) => {
 // Register User same as Add User
 const register = async (req, res) => {
     const { name, email, phone, role, password } = req.body;
-    if (!name || !email, !role) {
+    if (!name || !email || !role) {
         return res.status(400).json({ message: 'All fields are required' });
     }
     try {
         if (password == '123456789') {
             return res.status(400).json({ message: 'This password is not allowed' });
         }
-        if (!password){
-            password = '123456789'; // default password if not provided
-        }
+        const userPassword = (!password || password == '') ? '123456789' : password;
         // Salt here is for security in database.
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(userPassword, salt);
         if (phone && phone !== '') {
             await pool.query(
                 'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5)', 
@@ -125,13 +124,13 @@ const register = async (req, res) => {
 
 const submitRegistrationRequest = async (req, res) => {
     const { name, email, phone, role, password } = req.body;
-    if (!password ) password = '123456789';
+    const userPassword = (!password || password == '') ? '123456789' : password;
     if (!name || !email) {
         return res.status(400).json({ message: 'All fields are required' });
     }
     try {
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(userPassword, salt);
 
         if (phone && phone !== '') {
             await pool.query(
@@ -152,6 +151,33 @@ const submitRegistrationRequest = async (req, res) => {
     }
 };
 
+const googleRegister = async (req, res) => {
+    const {name, email} = req.body;
+    if (!name || !email) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+    const role = 'student';
+    const password = '123456789';
+    try {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        await pool.query('Select * FROM users WHERE email = $1', [email]);
+        const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (rows.length > 0) {
+            console.log('User already exists.');
+            return res.status(401).json({ message: 'User already exists' });
+        }
+        await pool.query(
+            'INSERT INTO users (name, email, role, password) VALUES ($1, $2, $3, $4)', 
+            [name, email, role, hashedPassword]    
+        );
+
+        res.status(201).json({ message: 'User registered successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error registering user' });
+    }
+}
 
 
-module.exports = { login, register, submitRegistrationRequest, googleLogin };
+module.exports = { login, register, submitRegistrationRequest, googleLogin, googleRegister };
