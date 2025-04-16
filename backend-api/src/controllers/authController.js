@@ -125,6 +125,8 @@ const register = async (req, res) => {
 const submitRegistrationRequest = async (req, res) => {
     const { name, email, phone, role, password } = req.body;
     const userPassword = (!password || password == '') ? '123456789' : password;
+    console.log("All fields", name, email, phone, role, password);
+    const created_at = new Date().toISOString(); // Get current date and time in ISO format
     if (!name || !email) {
         return res.status(400).json({ message: 'All fields are required' });
     }
@@ -134,13 +136,13 @@ const submitRegistrationRequest = async (req, res) => {
 
         if (phone && phone !== '') {
             await pool.query(
-                'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5)', 
-                [name, email, phone, role || 'student', hashedPassword]     
+                'INSERT INTO registration_requests (name, email, phone, role, password, created_at) VALUES ($1, $2, $3, $4, $5, $6)', 
+                [name, email, phone, role || 'student', hashedPassword, created_at]     
             );
         }else {
             await pool.query(
-                'INSERT INTO users (name, email, role, password) VALUES ($1, $2, $3, $4)', 
-                [name, email, role || 'student', hashedPassword]    
+                'INSERT INTO registration_requests (name, email, role, password, created_at) VALUES ($1, $2, $3, $4, $5)', 
+                [name, email, role || 'student', hashedPassword, created_at]    
             );
         }
 
