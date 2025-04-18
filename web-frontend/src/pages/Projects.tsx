@@ -51,6 +51,7 @@ const Projects: React.FC = () => {
   const [studentsRange, setStudentsRange] = useState(10);
   const [showOpenOnly, setShowOpenOnly] = useState(true);
   const [sortBy, setSortBy] = useState('relevance');
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
   // --- Applied Filters State ---
   const [appliedFilters, setAppliedFilters] = useState({
@@ -244,6 +245,20 @@ const Projects: React.FC = () => {
     setActiveFiltersForDisplay(filters);
   }, [selectedDomains, selectedProfessors, selectedSkills, showOpenOnly]);
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+    } else {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const isExpired = payload.exp * 1000 < Date.now();
+        if (isExpired) navigate('/');
+      } catch (err) {
+        navigate('/');
+      }
+    }
+  }, [navigate]);
 
   // --- Filter Handlers (remain the same) ---
   const handleSkillToggle = (skill: string) => {/*...*/ setSelectedSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]); };

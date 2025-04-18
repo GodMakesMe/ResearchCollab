@@ -10,8 +10,15 @@ const Home: React.FC = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      console.log('Token not found, redirecting to login...');
       navigate('/login');
+    } else {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const isExpired = payload.exp * 1000 < Date.now();
+        if (isExpired) navigate('/login');
+      } catch (err) {
+        navigate('/');
+      }
     }
   }, [navigate]);
 

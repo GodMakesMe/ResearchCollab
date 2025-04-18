@@ -206,3 +206,58 @@ CREATE INDEX idx_research_projects_domain_id ON research_center.Research_Project
 CREATE INDEX idx_project_skills_project_id ON research_center.Project_Skills(project_id);
 CREATE INDEX idx_project_skills_skill_id ON research_center.Project_Skills(skill_id);
 CREATE INDEX idx_faculty_user_id ON research_center.Faculty(user_id);
+
+
+
+
+
+Set search_path To research_center;
+With unassigned_projects AS (
+	Select project_id
+	From research_projects
+	Where domain_id IS NULL
+),
+domains_with_high_significance AS (
+	Select d.domain_id, d.significance From domains d Order by d.significance DESC
+),
+assignments AS (
+    SELECT
+        up.project_id,
+        d.domain_id,
+        ROW_NUMBER() OVER (PARTITION BY d.domain_id ORDER BY up.project_id) AS rn
+    FROM domains_with_high_significance d
+    JOIN unassigned_projects up ON true
+)
+UPDATE research_projects rp
+SET domain_id = a.domain_id
+FROM (
+    SELECT *
+    FROM assignments
+    WHERE rn <= (
+        SELECT significance FROM domains WHERE domains.domain_id = assignments.domain_id
+    )
+) a
+WHERE rp.project_id = a.project_id
+  AND rp.domain_id IS NULL;
+
+
+
+SET search_path TO research_center;
+DO $$
+DECLARE
+	i RECORD;
+	j RECORD;
+	assigned_count INT;
+BEGIN
+	For i in (SELECT domain_id, significance FROM Domains d Order By significance DESC LIMIT 5)
+		LOOP
+			assigned_count := 0;
+			For j in (SELECT project_id, domain_id FROM research_projects rp Where Domain_id IS NULL LIMIT i.significance)
+				LOOP
+					UPDATE research_projects SET domain_id = i.domain_id Where project_id = j.project_id;
+					assigned_count := assigned_count + 1;
+					EXIT WHEN assigned_count >= i.significance;
+				END LOOP;
+		END LOOP;
+END $$;
+		

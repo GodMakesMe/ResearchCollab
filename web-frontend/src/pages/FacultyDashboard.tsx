@@ -1,4 +1,6 @@
 import React from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 import Navigation from "../components/Navigation";  // Adjust the path as needed
 import Footer from "../components/Footer";          // Adjust the path as needed
 import { jwtDecode } from "jwt-decode";
@@ -12,13 +14,27 @@ interface MyJwtPayload {
 
 
 const ResearchCollabDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    } else {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const isExpired = payload.exp * 1000 < Date.now();
+        if (isExpired) navigate('/');
+      } catch (err) {
+        navigate('/login');      // We can also add one thing here that we don't redirect to login instead we make a small login popup api so that we don't lose the data 
+        // Recommend to use the login popup instead of redirecting to login page.  Like Background will be bluued and login popup will appear in the center of the screen.
+      }
+    }
+  }, [navigate]);
   if (!token) {
     alert("No token found. Please log in.");
     window.location.href = "/login";
     return null;
   }
-
   const decodedToken = jwtDecode<MyJwtPayload>(token.split(' ')[1] || token);
   console.log("Decoded token:", decodedToken);
 
@@ -188,6 +204,8 @@ const ResearchCollabDashboard: React.FC = () => {
   const handleNavClick = (nav: string): void => {
     alert(`You clicked "${nav}" — implement routing here.`);
   };
+
+  
 
   return (
     <div style={styles.container}>

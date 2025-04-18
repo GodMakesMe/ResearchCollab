@@ -3,7 +3,8 @@ import { useLocation } from "react-router-dom";
 import Navigation from "../components/Navigation";  // Import Navigation component
 import Footer from "../components/Footer";          // Import Footer component
 import { jwtDecode } from "jwt-decode";               // Import jwt-decode library
-
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 interface MyJwtPayload {
   email: string;
   role: 'admin' | 'faculty' | 'student'; // or just `string` if not fixed
@@ -14,6 +15,21 @@ interface MyJwtPayload {
 const DashboardScreen: React.FC = () => {
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+    } else {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const isExpired = payload.exp * 1000 < Date.now();
+        if (isExpired) navigate('/');
+      } catch (err) {
+        navigate('/');
+      }
+    }
+  }, [navigate]);
   const token = localStorage.getItem("token");
   if (!token) {
     alert("No token found. Please log in.");

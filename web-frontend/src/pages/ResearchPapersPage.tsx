@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './ResearchPapersPage.css';
 import logo from '../assets/Logo_Center.png';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 
 // Define the paper interface and sample data
 interface Paper {
@@ -9,6 +11,7 @@ interface Paper {
   abstract: string;
   researchArea: string;
 }
+
 
 const samplePapers: Paper[] = [
   {
@@ -43,8 +46,22 @@ const samplePapers: Paper[] = [
 
 const ResearchPapersPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-
+  const navigate = useNavigate(); // Initialize useNavigate hook
   // Filter papers based on search query. It checks title and research area.
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+    } else {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const isExpired = payload.exp * 1000 < Date.now();
+        if (isExpired) navigate('/');
+      } catch (err) {
+        navigate('/');
+      }
+    }
+  }, [navigate]);
   const filteredPapers = samplePapers.filter((paper) => {
     return (
       paper.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
