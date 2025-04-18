@@ -150,15 +150,18 @@ const addFaculty = async (req, res) => {
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Step 1: Insert into users
+    const phoneText = !phone || phone === '' ? '' : ', phone';
+    // const phoneValue = !phone || phone === '' ? '' : ', $1', [phone];  
+    const phoneValue = !phone || phone === '' ? '' : `, '${phone}'`;
+    const queryText = `INSERT INTO users (name, email${phoneText}, role, password) VALUES ('${name}', '${email}' ${phoneValue}, 'faculty', '${hashedPassword}') RETURNING user_id`;
+    console.log('Query Text:', queryText);
     const userResult = await pool.query(
-      'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5) RETURNING user_id',
-      [name, email, phone, 'faculty', hashedPassword]
+      // 'INSERT INTO users (name, email$1, role, password) VALUES ($2, $3 $4, $5, $6) RETURNING user_id',
+      // [phoneText, name, email, phoneValue, 'faculty', hashedPassword]
+      queryText
     );
     const user_id = userResult.rows[0].user_id;
 
-    // Step 2: Insert into faculty table
     await pool.query(
       'INSERT INTO faculty (user_id, department) VALUES ($1, $2)',
       [user_id, department]

@@ -1,4 +1,5 @@
 const pool = require('../db/db');
+const bcrypt = require('bcrypt');
 
 const getAllUsers = async (req, res) => {
   try {
@@ -221,12 +222,14 @@ const addUser = async (req, res) => {
   if (password == '123456789') {
     return res.status(400).send('Illegal Password');
   }
-  if (!password){
-    password = '123456789';
-    password = await bcrypt.hash(password, 10);
-  }
+  const userPassword = (!password || password == '') ? '123456789' : password;
+  const hashPassword = await bcrypt.hash(userPassword, 10);
+  // if (!password){
+  //   password = '123456789';
+  //   password = await bcrypt.hash(password, 10);
+  // }
   try {
-    await pool.query('INSERT INTO users (name, email, role, password ) VALUES ($1, $2)', [name, email, role, password]);
+    await pool.query('INSERT INTO users (name, email, role, password ) VALUES ($1, $2, $3, $4)', [name, email, role, hashPassword]);
     res.status(201).send('User added');
   } catch (err) {
     console.log('Error adding user:', err);

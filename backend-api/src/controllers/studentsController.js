@@ -122,22 +122,30 @@ const addStudents = async (req, res) => {
   }
 
   try {
-    // Default password if not provided
     const userPassword = password || '123456789';
 
-    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(userPassword, salt);
-
-    // First, insert the user
-    const userResult = await pool.query(
-      'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5) RETURNING user_id',
-      [name, email, phone || '', 'student', hashedPassword]
-    );
+    var userResult1 = null;
+    if (phone && phone !== '') {
+      userResult1 = await pool.query(
+        'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5) RETURNING user_id',
+        [name, email, phone, 'student', hashedPassword]
+      );
+    } else {
+      userResult1 = await pool.query(
+        'INSERT INTO users (name, email, role, password) VALUES ($1, $2, $3, $4) RETURNING user_id',
+        [name, email, 'student', hashedPassword]
+      );
+    }
+    const userResult = userResult1;
+    // const userResult = await pool.query(
+    //   'INSERT INTO users (name, email, phone, role, password) VALUES ($1, $2, $3, $4, $5) RETURNING user_id',
+    //   [name, email, phone || '', 'student', hashedPassword]
+    // );
 
     const userid = userResult.rows[0].user_id;
 
-    // Then insert into the students table
     await pool.query(
       'INSERT INTO students (student_id, user_id, enrollment_year, program) VALUES ($1, $2, $3, $4)',
       [student_id, userid, enrollment_year, program]
